@@ -1,6 +1,6 @@
 import './App.css'
 import styled from 'styled-components'
-import { Tabs, Tab, Button } from '@mui/material'
+import { Button } from '@mui/material'
 
 
 function App() {
