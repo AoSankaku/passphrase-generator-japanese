@@ -1,13 +1,34 @@
 import './App.css'
 import styled from 'styled-components'
 import { Button } from '@mui/material'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import Papa from 'papaparse';
+import wordlist_csv from "./assets/wordlist.csv?raw";
+
 
 function App() {
+  const [wordlist, setWordlist] = useState<any>()
   const [passPhrase, setPassPhrase] = useState("nihon.gengo.pasuwa-do.kawarini.naruyo")
+  const [separator, setSeparator] = useState(".")
+
+  useEffect(() => {
+    setWordlist(Papa.parse(wordlist_csv))
+  }, [])
+
+  useEffect(() => {
+    console.dir(wordlist)
+  }, [wordlist])
 
   const generatePassPhrase = () => {
-    setPassPhrase("test-test-test-test-" + Math.floor(Math.random() * 100))
+    setPassPhrase(
+      [
+        "test",
+        "test",
+        "test",
+        "test",
+        Math.floor(Math.random() * 100)
+      ].join(separator)
+    )
   }
 
   return (
