@@ -1,9 +1,14 @@
 import './App.css'
 import styled from 'styled-components'
 import { Button } from '@mui/material'
-
+import { useState } from 'react'
 
 function App() {
+  const [passPhrase, setPassPhrase] = useState("nihon.gengo.pasuwa-do.kawarini.naruyo")
+
+  const generatePassPhrase = () => {
+    setPassPhrase("test-test-test-test-" + Math.floor(Math.random() * 100))
+  }
 
   return (
     <>
@@ -12,9 +17,9 @@ function App() {
         <p>日本語でパスフレーズ（パスワードの代わりになるもの）を作れます。</p>
       </div>
       <PassPhrase>
-        nihon.gengo.pasuwa-do.kawarini.naruyo
+        {passPhrase}
       </PassPhrase>
-      <Button>生成</Button>
+      <Button onClick={() => generatePassPhrase()}>生成</Button>
     </>
   )
 }
