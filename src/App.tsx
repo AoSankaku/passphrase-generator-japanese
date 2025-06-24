@@ -20,15 +20,15 @@ function App() {
   }, [wordlist])
 
   const generatePassPhrase = () => {
-    setPassPhrase(
-      [
-        "test",
-        "test",
-        "test",
-        "test",
-        Math.floor(Math.random() * 100)
-      ].join(separator)
-    )
+    
+   /*ランダムパスワード生成*/ 
+    const union_pass = []
+    for(let i = 0; i < 4; i++){
+      const rand_index = Math.floor(Math.random() * wordlist.data.length)
+      const pass_parts = wordlist.data[rand_index][1]
+      union_pass.push(pass_parts)
+    }
+    setPassPhrase([union_pass].join(separator))
   }
 
   return (
