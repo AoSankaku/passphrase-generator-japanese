@@ -4,6 +4,7 @@ import { Button } from '@mui/material'
 import { useState, useEffect } from 'react'
 import Papa from 'papaparse';
 import wordlist_csv from "./assets/wordlist.csv?raw";
+import * as wanakana from 'wanakana';
 
 type PassPhrase = {
   passPhrase: string;
@@ -34,7 +35,7 @@ function App() {
       const rand_index = Math.floor(Math.random() * wordlist.data.length)
       const pass_parts = wordlist.data[rand_index]
       union_pass[0].push(pass_parts[0])
-      union_pass[1].push(pass_parts[1])
+      union_pass[1].push(wanakana.toRomaji(pass_parts[1]))
     }
     setPassPhrase({
       passPhrase: [union_pass[1]].join(separator),
