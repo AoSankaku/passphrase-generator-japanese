@@ -23,11 +23,9 @@ jobs:
     - name: 依存関係のインストール
       run: pip install pandas
 
-    - name: 作業フォルダに移動
-      run: cd src/assets
-
     - name: スクリプトの実行
       run: |
+        cd src/assets
         python WordListSorter.py wordlist.csv
 
     - name: 変更のコミット
