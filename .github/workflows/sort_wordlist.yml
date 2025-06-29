@@ -1,0 +1,38 @@
+name: Sort wordlist.csv
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'src/assets/wordlist.csv'
+
+jobs:
+  sort-csv:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: チェックアウト
+      uses: actions/checkout@v4
+
+    - name: Pythonのセットアップ
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11' 
+
+    - name: スクリプトの実行
+      run: |
+        python src/assets/wordListSorter.py src/assets/wordlist.csv
+
+    - name: 変更のコミット
+      run: |
+        git config user.name github-actions[bot]
+        git config user.email github-actions[bot]@users.noreply.github.com
+        git add src/assets/wordlist.csv
+        git diff --cached --exit-code || git commit -m "chore: Sort wordlist.csv automatically"
+
+    - name: 変更のプッシュ
+      uses: ad-m/github-push-action@master
+      with:
+        branch: ${{ github.ref_name }}
+        github_token: ${{ secrets.GITHUB_TOKEN }}
