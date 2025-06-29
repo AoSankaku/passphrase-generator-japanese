@@ -6,7 +6,7 @@ def WordListSorter():
   
   wordlist = wordlist.drop_duplicates()
   
-  wordlist = wordlist[wordlist[1].str.len() <= 5]
+  # wordlist = wordlist[wordlist[1].str.len() <= 7]
   
   wordlist.to_csv("wordlist.csv", index = False, encoding = "utf-8")
   
