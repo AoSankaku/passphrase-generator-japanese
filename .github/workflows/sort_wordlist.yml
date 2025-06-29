@@ -22,7 +22,7 @@ jobs:
 
     - name: スクリプトの実行
       run: |
-        python src/assets/wordListSorter.py src/assets/wordlist.csv
+        python src/assets/WordListSorter.py src/assets/wordlist.csv
 
     - name: 変更のコミット
       run: |
