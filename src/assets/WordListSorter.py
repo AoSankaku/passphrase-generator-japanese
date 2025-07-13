@@ -1,6 +1,6 @@
 import pandas as pd
 
-#CSVを編集して新たに作成
+#CSVを編集して更新
 def WordListSorter():
   wordlist = pd.read_csv("./wordlist.csv", header = None)
 

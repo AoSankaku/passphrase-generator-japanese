@@ -27,9 +27,9 @@ function App() {
     console.dir(wordlist)
   }, [wordlist])
 
+  /*ランダムパスワード生成----------------------------------------------------------------------------------*/
   const generatePassPhrase = () => {
 
-    /*ランダムパスワード生成*/
     const union_pass: [string[], string[]] = [[], []]
     for (let i = 0; i < 4; i++) {
       const rand_index = Math.floor(Math.random() * wordlist.data.length)
@@ -43,6 +43,32 @@ function App() {
     })
   }
 
+/*コピーボタン----------------------------------------------------------------------------------------------*/ 
+function CopyButton() {
+  const [copyStatus, setCopyStatus] = useState('');
+  const textToCopy = passPhrase.passPhrase;
+  const handleCopyClick = async () => {
+    try {
+      await navigator.clipboard.writeText(textToCopy);
+    } catch (err) {
+      setTimeout(() => setCopyStatus(''), 2000); // 2秒後にメッセージを消す
+      setCopyStatus('コピーに失敗しました。');
+      console.error('コピーエラー:', err);
+    }
+  };
+ 
+  return (
+    <span>
+      <Button onClick={handleCopyClick}>
+        {copyStatus || 'コピー'}
+      </Button>
+      {copyStatus && <p style={{ color: copyStatus.includes('失敗') ? 'red' : 'green' }}>{copyStatus}</p>}
+    </span>
+  );
+}
+
+
+
   return (
     <>
       <Title>日本語パスフレーズジェネレーター</Title>
@@ -55,7 +81,7 @@ function App() {
       <KanjiPassPhrase>
         {passPhrase.kanjiPassPhrase}
       </KanjiPassPhrase>
-      <Button onClick={() => generatePassPhrase()}>生成</Button>
+      <Button onClick={() => generatePassPhrase()}>生成</Button>{CopyButton()}
     </>
   )
 }
