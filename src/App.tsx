@@ -43,29 +43,29 @@ function App() {
     })
   }
 
-/*コピーボタン----------------------------------------------------------------------------------------------*/ 
-function CopyButton() {
-  const [copyStatus, setCopyStatus] = useState('');
-  const textToCopy = passPhrase.passPhrase;
-  const handleCopyClick = async () => {
-    try {
-      await navigator.clipboard.writeText(textToCopy);
-    } catch (err) {
-      setTimeout(() => setCopyStatus(''), 2000); // 2秒後にメッセージを消す
-      setCopyStatus('コピーに失敗しました。');
-      console.error('コピーエラー:', err);
-    }
-  };
- 
-  return (
-    <span>
-      <Button onClick={handleCopyClick}>
-        {copyStatus || 'コピー'}
-      </Button>
-      {copyStatus && <p style={{ color: copyStatus.includes('失敗') ? 'red' : 'green' }}>{copyStatus}</p>}
-    </span>
-  );
-}
+  /*コピーボタン----------------------------------------------------------------------------------------------*/
+  function CopyButton() {
+    const [copyStatus, setCopyStatus] = useState('');
+    const textToCopy = passPhrase.passPhrase;
+    const handleCopyClick = async () => {
+      try {
+        await navigator.clipboard.writeText(textToCopy);
+      } catch (err) {
+        setTimeout(() => setCopyStatus(''), 2000); // 2秒後にメッセージを消す
+        setCopyStatus('コピーに失敗しました。');
+        console.error('コピーエラー:', err);
+      }
+    };
+
+    return (
+      <span>
+        <Button onClick={handleCopyClick}>
+          {copyStatus || 'コピー'}
+        </Button>
+        {copyStatus && <p style={{ color: copyStatus.includes('失敗') ? 'red' : 'green' }}>{copyStatus}</p>}
+      </span>
+    );
+  }
 
 
 
