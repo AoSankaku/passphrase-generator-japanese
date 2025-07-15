@@ -11,7 +11,7 @@ type PassPhrase = {
   kanjiPassPhrase: string;
 }
 
-function App() {
+const App = () => {
   const [wordlist, setWordlist] = useState<any>()
   const [passPhrase, setPassPhrase] = useState<PassPhrase>({
     passPhrase: "nihon.gengo.pasuwa-do.kawarini.naruyo",
@@ -44,7 +44,7 @@ function App() {
   }
 
   /*コピーボタン----------------------------------------------------------------------------------------------*/
-  function CopyButton() {
+  const CopyButton = () => {
     const [copyStatus, setCopyStatus] = useState('');
     const textToCopy = passPhrase.passPhrase;
     const handleCopyClick = async () => {
