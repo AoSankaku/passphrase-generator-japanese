@@ -60,8 +60,8 @@ const App = () => {
     };
 
     return (
-      <Button onClick={handleCopyClick} variant="contained">
-        <ContentCopyIcon />コピー
+      <Button onClick={handleCopyClick} variant="contained" startIcon={<ContentCopyIcon />}>
+        コピー
       </Button>
     );
   }
@@ -80,8 +80,8 @@ const App = () => {
       <KanjiPassPhrase>
         {passPhrase.kanjiPassPhrase}
       </KanjiPassPhrase>
-      <Button onClick={() => generatePassPhrase()} variant="outlined">
-        <ReplayIcon />生成
+      <Button onClick={() => generatePassPhrase()} variant="outlined" startIcon={<ReplayIcon />}>
+        生成
       </Button>
       <CopyButton />
     </>
