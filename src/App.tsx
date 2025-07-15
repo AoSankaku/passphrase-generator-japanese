@@ -58,12 +58,9 @@ const App = () => {
     };
 
     return (
-      <span>
-        <Button onClick={handleCopyClick}>
-          {copyStatus || 'コピー'}
-        </Button>
-        {copyStatus && <p style={{ color: copyStatus.includes('失敗') ? 'red' : 'green' }}>{copyStatus}</p>}
-      </span>
+      <Button onClick={handleCopyClick}>
+        コピー
+      </Button>
     );
   }
 
@@ -81,7 +78,8 @@ const App = () => {
       <KanjiPassPhrase>
         {passPhrase.kanjiPassPhrase}
       </KanjiPassPhrase>
-      <Button onClick={() => generatePassPhrase()}>生成</Button>{CopyButton()}
+      <Button onClick={() => generatePassPhrase()}>生成</Button>
+      <CopyButton />
     </>
   )
 }
