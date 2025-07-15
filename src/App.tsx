@@ -5,6 +5,8 @@ import { useState, useEffect } from 'react'
 import Papa from 'papaparse';
 import wordlist_csv from "./assets/wordlist.csv?raw";
 import * as wanakana from 'wanakana';
+import ReplayIcon from '@mui/icons-material/Replay';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 
 type PassPhrase = {
   passPhrase: string;
@@ -58,8 +60,8 @@ const App = () => {
     };
 
     return (
-      <Button onClick={handleCopyClick}>
-        コピー
+      <Button onClick={handleCopyClick} variant="contained">
+        <ContentCopyIcon />コピー
       </Button>
     );
   }
@@ -78,7 +80,9 @@ const App = () => {
       <KanjiPassPhrase>
         {passPhrase.kanjiPassPhrase}
       </KanjiPassPhrase>
-      <Button onClick={() => generatePassPhrase()}>生成</Button>
+      <Button onClick={() => generatePassPhrase()} variant="outlined">
+        <ReplayIcon />生成
+      </Button>
       <CopyButton />
     </>
   )
