@@ -1,12 +1,14 @@
 import './App.css'
 import styled from 'styled-components'
-import { Button } from '@mui/material'
+import { Button, Input } from '@mui/material'
 import { useState, useEffect } from 'react'
 import Papa from 'papaparse';
 import wordlist_csv from "./assets/wordlist.csv?raw";
 import * as wanakana from 'wanakana';
 import ReplayIcon from '@mui/icons-material/Replay';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import TestSlider from './components/TestSlider.tsx';
+
 
 type PassPhrase = {
   passPhrase: string;
@@ -84,6 +86,7 @@ const App = () => {
         生成
       </Button>
       <CopyButton />
+      <TestSlider title="文字数" />
     </>
   )
 }
