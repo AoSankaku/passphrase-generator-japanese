@@ -20,6 +20,7 @@ const App = () => {
     kanjiPassPhrase: "日本語パスワード代わりになるよ"
   })
   const [separator, setSeparator] = useState(".")
+  const [isFirstGenerate, setIsFirstGenerate] = useState(true)
 
   useEffect(() => {
     setWordlist(Papa.parse(wordlist_csv))
@@ -31,6 +32,8 @@ const App = () => {
 
   /*ランダムパスワード生成----------------------------------------------------------------------------------*/
   const generatePassPhrase = () => {
+
+    setIsFirstGenerate(false)
 
     const union_pass: [string[], string[]] = [[], []]
     for (let i = 0; i < 4; i++) {
@@ -60,7 +63,7 @@ const App = () => {
     };
 
     return (
-      <Button onClick={handleCopyClick} variant="contained" startIcon={<ContentCopyIcon />} size="large">
+      <Button onClick={handleCopyClick} variant="contained" startIcon={<ContentCopyIcon />} size="large" disabled={isFirstGenerate}>
         コピー
       </Button>
     );
