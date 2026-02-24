@@ -1,36 +1,33 @@
-import styled from 'styled-components'
-import * as React from 'react';
-import Box from '@mui/material/Box';
-import Grid from '@mui/material/Grid';
-import Typography from '@mui/material/Typography';
-import Slider from '@mui/material/Slider';
-import MuiInput from '@mui/material/Input';
-import VolumeUp from '@mui/icons-material/VolumeUp';
-
+import styled from "styled-components";
+import * as React from "react";
+import Box from "@mui/material/Box";
+import Grid from "@mui/material/Grid";
+import Typography from "@mui/material/Typography";
+import Slider from "@mui/material/Slider";
+import MuiInput from "@mui/material/Input";
 
 const Input = styled(MuiInput)`
   width: 42px;
 `;
 type TestSliderPlops = {
   title: string;
-}
-const TestSlider:React.FC<TestSliderPlops> = ({title}) => {
-  
-  const [value, setValue] = React.useState(30);
-
-  const handleSliderChange = (event: Event, newValue: number) => {
-    setValue(newValue);
+  value: number;
+  onChange: (value: number) => void;
+};
+const TestSlider: React.FC<TestSliderPlops> = ({ title, value, onChange }) => {
+  const handleSliderChange = (_event: Event, newValue: number | number[]) => {
+    onChange(newValue as number);
   };
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setValue(event.target.value === '' ? 0 : Number(event.target.value));
+    onChange(event.target.value === "" ? 4 : Number(event.target.value));
   };
 
   const handleBlur = () => {
-    if (value < 0) {
-      setValue(0);
-    } else if (value > 100) {
-      setValue(100);
+    if (value < 4) {
+      onChange(4);
+    } else if (value > 10) {
+      onChange(10);
     }
   };
 
@@ -39,15 +36,15 @@ const TestSlider:React.FC<TestSliderPlops> = ({title}) => {
       <Typography id="input-slider" gutterBottom>
         {title}
       </Typography>
-      <Grid container spacing={2} sx={{ alignItems: 'center' }}>
-        <Grid>
-          <VolumeUp />
-        </Grid>
+      <Grid container spacing={2} sx={{ alignItems: "center" }}>
         <Grid size="grow">
           <Slider
-            value={typeof value === 'number' ? value : 0}
+            value={value}
             onChange={handleSliderChange}
             aria-labelledby="input-slider"
+            min={4}
+            max={10}
+            step={1}
           />
         </Grid>
         <Grid>
@@ -57,16 +54,16 @@ const TestSlider:React.FC<TestSliderPlops> = ({title}) => {
             onChange={handleInputChange}
             onBlur={handleBlur}
             inputProps={{
-              step: 10,
-              min: 0,
-              max: 100,
-              type: 'number',
-              'aria-labelledby': 'input-slider',
+              step: 1,
+              min: 4,
+              max: 10,
+              type: "number",
+              "aria-labelledby": "input-slider",
             }}
           />
         </Grid>
       </Grid>
     </Box>
   );
-}
-export default TestSlider
+};
+export default TestSlider;

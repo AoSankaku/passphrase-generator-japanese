@@ -1,77 +1,80 @@
-import './App.css'
-import styled from 'styled-components'
-import { Button, Input } from '@mui/material'
-import { useState, useEffect } from 'react'
-import Papa from 'papaparse';
+import "./App.css";
+import styled from "styled-components";
+import { Button, Input } from "@mui/material";
+import { useState, useEffect } from "react";
+import Papa from "papaparse";
 import wordlist_csv from "./assets/wordlist.csv?raw";
-import * as wanakana from 'wanakana';
-import ReplayIcon from '@mui/icons-material/Replay';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import TestSlider from './components/TestSlider.tsx';
-
+import * as wanakana from "wanakana";
+import ReplayIcon from "@mui/icons-material/Replay";
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import TestSlider from "./components/TestSlider.tsx";
 
 type PassPhrase = {
   passPhrase: string;
   kanjiPassPhrase: string;
-}
+};
 
 const App = () => {
-  const [wordlist, setWordlist] = useState<any>()
+  const [wordlist, setWordlist] = useState<any>();
   const [passPhrase, setPassPhrase] = useState<PassPhrase>({
     passPhrase: "nihon.gengo.pasuwa-do.kawarini.naruyo",
-    kanjiPassPhrase: "日本語パスワード代わりになるよ"
-  })
-  const [separator, setSeparator] = useState(".")
-  const [isFirstGenerate, setIsFirstGenerate] = useState(true)
+    kanjiPassPhrase: "日本語パスワード代わりになるよ",
+  });
+  const [separator, setSeparator] = useState(".");
+  const [isFirstGenerate, setIsFirstGenerate] = useState(true);
+  const [wordCount, setWordCount] = useState(4);
 
   useEffect(() => {
-    setWordlist(Papa.parse(wordlist_csv))
-  }, [])
+    setWordlist(Papa.parse(wordlist_csv));
+  }, []);
 
   useEffect(() => {
-    console.dir(wordlist)
-  }, [wordlist])
+    console.dir(wordlist);
+  }, [wordlist]);
 
   /*ランダムパスワード生成----------------------------------------------------------------------------------*/
   const generatePassPhrase = () => {
+    setIsFirstGenerate(false);
 
-    setIsFirstGenerate(false)
-
-    const union_pass: [string[], string[]] = [[], []]
-    for (let i = 0; i < 4; i++) {
-      const rand_index = Math.floor(Math.random() * wordlist.data.length)
-      const pass_parts = wordlist.data[rand_index]
-      union_pass[0].push(pass_parts[0])
-      union_pass[1].push(wanakana.toRomaji(pass_parts[1]))
+    const union_pass: [string[], string[]] = [[], []];
+    for (let i = 0; i < wordCount; i++) {
+      const rand_index = Math.floor(Math.random() * wordlist.data.length);
+      const pass_parts = wordlist.data[rand_index];
+      union_pass[0].push(pass_parts[0]);
+      union_pass[1].push(wanakana.toRomaji(pass_parts[1]));
     }
     setPassPhrase({
-      passPhrase: [union_pass[1]].join(separator),
-      kanjiPassPhrase: [union_pass[0]].join(separator)
-    })
-  }
+      passPhrase: union_pass[1].join(separator),
+      kanjiPassPhrase: union_pass[0].join(separator),
+    });
+  };
 
   /*コピーボタン----------------------------------------------------------------------------------------------*/
   const CopyButton = () => {
-    const [copyStatus, setCopyStatus] = useState('');
+    const [copyStatus, setCopyStatus] = useState("");
     const textToCopy = passPhrase.passPhrase;
     const handleCopyClick = async () => {
       try {
         await navigator.clipboard.writeText(textToCopy);
       } catch (err) {
-        setTimeout(() => setCopyStatus(''), 2000); // 2秒後にメッセージを消す
-        setCopyStatus('コピーに失敗しました。');
-        console.error('コピーエラー:', err);
+        setTimeout(() => setCopyStatus(""), 2000); // 2秒後にメッセージを消す
+        setCopyStatus("コピーに失敗しました。");
+        console.error("コピーエラー:", err);
       }
     };
 
     return (
-      <Button onClick={handleCopyClick} variant="contained" startIcon={<ContentCopyIcon />} size="large" disabled={isFirstGenerate}>
+      <Button
+        onClick={handleCopyClick}
+        variant="contained"
+        startIcon={<ContentCopyIcon />}
+        size="large"
+        disabled={isFirstGenerate}
+      >
         コピー
       </Button>
     );
-  }
-
-
+  };
 
   return (
     <>
@@ -79,35 +82,50 @@ const App = () => {
       <div>
         <p>日本語でパスフレーズ（パスワードの代わりになるもの）を作れます。</p>
       </div>
-      <PassPhrase>
-        {passPhrase.passPhrase}
-      </PassPhrase>
-      <KanjiPassPhrase>
-        {passPhrase.kanjiPassPhrase}
-      </KanjiPassPhrase>
-      <Button onClick={() => generatePassPhrase()} variant="outlined" startIcon={<ReplayIcon />} size="large">
+      <PassphraseContainer>
+        <PassPhrase>{passPhrase.passPhrase}</PassPhrase>
+        <KanjiPassPhrase>{passPhrase.kanjiPassPhrase}</KanjiPassPhrase>
+      </PassphraseContainer>
+      <Button
+        onClick={() => generatePassPhrase()}
+        variant="outlined"
+        startIcon={<ReplayIcon />}
+        size="large"
+      >
         生成
       </Button>
       <CopyButton />
-      <TestSlider title="文字数" />
+      <TestSlider title="単語数" value={wordCount} onChange={setWordCount} />
     </>
-  )
-}
+  );
+};
 
-const Title = styled.h1`
-`
+const Title = styled.h1``;
+
+const PassphraseContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 5lh;
+  width: 100%;
+  font-size: 3rem;
+  margin: 2rem 0;
+`;
 
 const PassPhrase = styled.div`
   font-size: 3rem;
   font-weight: bold;
   padding: 1rem 0;
-`
+  word-break: break-all;
+`;
 
 const KanjiPassPhrase = styled.div`
   font-size: 2rem;
   font-weight: bold;
-  padding:  0 0 1rem 0;
+  padding: 0 0 1rem 0;
   color: #888;
-`
+  word-break: break-all;
+`;
 
-export default App
+export default App;
