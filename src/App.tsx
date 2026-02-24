@@ -1,12 +1,16 @@
 import "./App.css";
 import styled from "styled-components";
-import { Button, Input } from "@mui/material";
-import { useState, useEffect } from "react";
+import { Button, Input, IconButton } from "@mui/material";
+import { useState, useEffect, useMemo } from "react";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
+import CssBaseline from "@mui/material/CssBaseline";
 import Papa from "papaparse";
 import wordlist_csv from "./assets/wordlist.csv?raw";
 import * as wanakana from "wanakana";
 import ReplayIcon from "@mui/icons-material/Replay";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import LightModeIcon from "@mui/icons-material/LightMode";
+import DarkModeIcon from "@mui/icons-material/DarkMode";
 import TestSlider from "./components/TestSlider.tsx";
 import EntropyDisplay, {
   GeneratedConfig,
@@ -15,6 +19,19 @@ import NumberSlotControl from "./components/NumberSlotControl.tsx";
 import SeparatorControl from "./components/SeparatorControl.tsx";
 
 const App = () => {
+  const [themeMode, setThemeMode] = useState<"light" | "dark">(
+    () => (localStorage.getItem("theme") as "light" | "dark") ?? "light",
+  );
+  const theme = useMemo(
+    () => createTheme({ palette: { mode: themeMode } }),
+    [themeMode],
+  );
+
+  useEffect(() => {
+    localStorage.setItem("theme", themeMode);
+    document.documentElement.setAttribute("data-theme", themeMode);
+  }, [themeMode]);
+
   const [wordlist, setWordlist] = useState<any>();
   const [words, setWords] = useState<{ romaji: string[]; kanji: string[] }>({
     romaji: ["nihongo", "pasuwa-do", "kawarini", "naruyo"],
@@ -95,7 +112,18 @@ const App = () => {
   };
 
   return (
-    <>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <ThemeToggle>
+        <IconButton
+          onClick={() =>
+            setThemeMode((m) => (m === "light" ? "dark" : "light"))
+          }
+          aria-label="テーマ切り替え"
+        >
+          {themeMode === "light" ? <DarkModeIcon /> : <LightModeIcon />}
+        </IconButton>
+      </ThemeToggle>
       <Title>日本語パスフレーズジェネレーター</Title>
       <div>
         <p>日本語でパスフレーズ（パスワードの代わりになるもの）を作れます。</p>
@@ -136,13 +164,19 @@ const App = () => {
         生成
       </GenerateButton>
       <CopyButton />
-    </>
+    </ThemeProvider>
   );
 };
 
+const ThemeToggle = styled.div`
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+`;
+
 const Title = styled.h1``;
 
-const GenerateButton = styled(Button) <{ $flashing: boolean }>`
+const GenerateButton = styled(Button)<{ $flashing: boolean }>`
   @keyframes pulse {
     0%,
     100% {
