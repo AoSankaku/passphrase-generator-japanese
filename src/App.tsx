@@ -8,6 +8,10 @@ import * as wanakana from "wanakana";
 import ReplayIcon from "@mui/icons-material/Replay";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import TestSlider from "./components/TestSlider.tsx";
+import EntropyDisplay, {
+  GeneratedConfig,
+} from "./components/EntropyDisplay.tsx";
+import NumberSlotControl from "./components/NumberSlotControl.tsx";
 
 type PassPhrase = {
   passPhrase: string;
@@ -23,6 +27,12 @@ const App = () => {
   const [separator, setSeparator] = useState(".");
   const [isFirstGenerate, setIsFirstGenerate] = useState(true);
   const [wordCount, setWordCount] = useState(4);
+  const [numberEnabled, setNumberEnabled] = useState(false);
+  const [numberPosition, setNumberPosition] = useState<"start" | "end">("end");
+  const [digitCount, setDigitCount] = useState(4);
+
+  const [generatedConfig, setGeneratedConfig] =
+    useState<GeneratedConfig | null>(null);
 
   useEffect(() => {
     setWordlist(Papa.parse(wordlist_csv));
@@ -35,6 +45,7 @@ const App = () => {
   /*ランダムパスワード生成----------------------------------------------------------------------------------*/
   const generatePassPhrase = () => {
     setIsFirstGenerate(false);
+    setGeneratedConfig({ wordCount, numberEnabled, digitCount });
 
     const union_pass: [string[], string[]] = [[], []];
     for (let i = 0; i < wordCount; i++) {
@@ -42,6 +53,18 @@ const App = () => {
       const pass_parts = wordlist.data[rand_index];
       union_pass[0].push(pass_parts[0]);
       union_pass[1].push(wanakana.toRomaji(pass_parts[1]));
+    }
+    if (numberEnabled) {
+      const num = Math.floor(Math.random() * Math.pow(10, digitCount))
+        .toString()
+        .padStart(digitCount, "0");
+      if (numberPosition === "start") {
+        union_pass[0].unshift(num);
+        union_pass[1].unshift(num);
+      } else {
+        union_pass[0].push(num);
+        union_pass[1].push(num);
+      }
     }
     setPassPhrase({
       passPhrase: union_pass[1].join(separator),
@@ -86,21 +109,60 @@ const App = () => {
         <PassPhrase>{passPhrase.passPhrase}</PassPhrase>
         <KanjiPassPhrase>{passPhrase.kanjiPassPhrase}</KanjiPassPhrase>
       </PassphraseContainer>
-      <Button
+      <EntropyDisplay
+        passPhrase={passPhrase.passPhrase}
+        wordlistSize={wordlist?.data?.length ?? 0}
+        separator={separator}
+        generatedConfig={generatedConfig}
+      />
+      <SliderContainer>
+        <TestSlider title="単語数" value={wordCount} onChange={setWordCount} />
+      </SliderContainer>
+      <SliderContainer>
+        <NumberSlotControl
+          enabled={numberEnabled}
+          onToggle={setNumberEnabled}
+          position={numberPosition}
+          onPositionChange={setNumberPosition}
+          digitCount={digitCount}
+          onDigitCountChange={setDigitCount}
+        />
+      </SliderContainer>
+      <GenerateButton
         onClick={() => generatePassPhrase()}
         variant="outlined"
         startIcon={<ReplayIcon />}
         size="large"
+        $flashing={isFirstGenerate}
       >
         生成
-      </Button>
+      </GenerateButton>
       <CopyButton />
-      <TestSlider title="単語数" value={wordCount} onChange={setWordCount} />
     </>
   );
 };
 
 const Title = styled.h1``;
+
+const GenerateButton = styled(Button)<{ $flashing: boolean }>`
+  @keyframes pulse {
+    0%,
+    100% {
+      box-shadow: 0 0 0 0 rgba(25, 118, 210, 0.5);
+    }
+    50% {
+      box-shadow: 0 0 0 8px rgba(25, 118, 210, 0);
+    }
+  }
+  ${({ $flashing }) =>
+    $flashing && `animation: pulse 1.2s ease-in-out infinite;`}
+`;
+
+const SliderContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  margin: 1rem 0;
+`;
 
 const PassphraseContainer = styled.div`
   display: flex;
