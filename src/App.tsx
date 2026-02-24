@@ -12,17 +12,13 @@ import EntropyDisplay, {
   GeneratedConfig,
 } from "./components/EntropyDisplay.tsx";
 import NumberSlotControl from "./components/NumberSlotControl.tsx";
-
-type PassPhrase = {
-  passPhrase: string;
-  kanjiPassPhrase: string;
-};
+import SeparatorControl from "./components/SeparatorControl.tsx";
 
 const App = () => {
   const [wordlist, setWordlist] = useState<any>();
-  const [passPhrase, setPassPhrase] = useState<PassPhrase>({
-    passPhrase: "nihon.gengo.pasuwa-do.kawarini.naruyo",
-    kanjiPassPhrase: "日本語パスワード代わりになるよ",
+  const [words, setWords] = useState<{ romaji: string[]; kanji: string[] }>({
+    romaji: ["nihongo", "pasuwa-do", "kawarini", "naruyo"],
+    kanji: ["日本語", "パスワード", "代わりに", "なるよ"],
   });
   const [separator, setSeparator] = useState(".");
   const [isFirstGenerate, setIsFirstGenerate] = useState(true);
@@ -30,9 +26,12 @@ const App = () => {
   const [numberEnabled, setNumberEnabled] = useState(false);
   const [numberPosition, setNumberPosition] = useState<"start" | "end">("end");
   const [digitCount, setDigitCount] = useState(4);
-
   const [generatedConfig, setGeneratedConfig] =
     useState<GeneratedConfig | null>(null);
+
+  // Derived — updates instantly when separator changes, no regeneration needed
+  const passPhrase = words.romaji.join(separator);
+  const kanjiPassPhrase = words.kanji.join(separator);
 
   useEffect(() => {
     setWordlist(Papa.parse(wordlist_csv));
@@ -66,19 +65,15 @@ const App = () => {
         union_pass[1].push(num);
       }
     }
-    setPassPhrase({
-      passPhrase: union_pass[1].join(separator),
-      kanjiPassPhrase: union_pass[0].join(separator),
-    });
+    setWords({ romaji: union_pass[1], kanji: union_pass[0] });
   };
 
   /*コピーボタン----------------------------------------------------------------------------------------------*/
   const CopyButton = () => {
     const [copyStatus, setCopyStatus] = useState("");
-    const textToCopy = passPhrase.passPhrase;
     const handleCopyClick = async () => {
       try {
-        await navigator.clipboard.writeText(textToCopy);
+        await navigator.clipboard.writeText(passPhrase);
       } catch (err) {
         setTimeout(() => setCopyStatus(""), 2000); // 2秒後にメッセージを消す
         setCopyStatus("コピーに失敗しました。");
@@ -106,17 +101,20 @@ const App = () => {
         <p>日本語でパスフレーズ（パスワードの代わりになるもの）を作れます。</p>
       </div>
       <PassphraseContainer>
-        <PassPhrase>{passPhrase.passPhrase}</PassPhrase>
-        <KanjiPassPhrase>{passPhrase.kanjiPassPhrase}</KanjiPassPhrase>
+        <PassPhrase>{passPhrase}</PassPhrase>
+        <KanjiPassPhrase>{kanjiPassPhrase}</KanjiPassPhrase>
       </PassphraseContainer>
       <EntropyDisplay
-        passPhrase={passPhrase.passPhrase}
+        passPhrase={passPhrase}
         wordlistSize={wordlist?.data?.length ?? 0}
         separator={separator}
         generatedConfig={generatedConfig}
       />
       <SliderContainer>
         <TestSlider title="単語数" value={wordCount} onChange={setWordCount} />
+      </SliderContainer>
+      <SliderContainer>
+        <SeparatorControl value={separator} onChange={setSeparator} />
       </SliderContainer>
       <SliderContainer>
         <NumberSlotControl
