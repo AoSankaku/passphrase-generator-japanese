@@ -26,6 +26,7 @@ import NumberSlotControl from "./components/NumberSlotControl";
 import SeparatorControl from "./components/SeparatorControl";
 import RomajiStyleControl from "./components/RomajiStyleControl";
 import NStyleControl from "./components/NStyleControl";
+import QandA from "./components/QandA";
 import {
   getToRomajiOptions,
   applyNStyle,
@@ -278,6 +279,7 @@ const App = () => {
           <NStyleControl value={nStyle} onChange={setNStyle} />
         </Box>
       </Paper>
+      <QandA />
     </ThemeProvider>
   );
 };
@@ -311,7 +313,7 @@ const Title = styled.h1`
   margin-top: 10vh;
 `;
 
-const GenerateButton = styled(Button)<{ $flashing: boolean }>`
+const GenerateButton = styled(Button) <{ $flashing: boolean }>`
   @keyframes pulse {
     0%,
     100% {
