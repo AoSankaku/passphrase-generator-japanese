@@ -307,7 +307,9 @@ const FadeIcon = styled.span`
   animation: fadeIn 0.2s ease;
 `;
 
-const Title = styled.h1``;
+const Title = styled.h1`
+  margin-top: 10vh;
+`;
 
 const GenerateButton = styled(Button)<{ $flashing: boolean }>`
   @keyframes pulse {
