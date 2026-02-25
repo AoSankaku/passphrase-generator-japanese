@@ -1,6 +1,6 @@
 import "./App.css";
 import styled from "styled-components";
-import { Button, Input, IconButton } from "@mui/material";
+import { Button, Input, IconButton, Paper, Divider, Box } from "@mui/material";
 import { useState, useEffect, useMemo } from "react";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
@@ -17,6 +17,14 @@ import EntropyDisplay, {
 } from "./components/EntropyDisplay.tsx";
 import NumberSlotControl from "./components/NumberSlotControl.tsx";
 import SeparatorControl from "./components/SeparatorControl.tsx";
+import RomajiStyleControl from "./components/RomajiStyleControl.tsx";
+import NStyleControl from "./components/NStyleControl.tsx";
+import {
+  getToRomajiOptions,
+  applyNStyle,
+  type RomajiStyle,
+  type NStyle,
+} from "./lib/romajiMappings.ts";
 
 const App = () => {
   const [themeMode, setThemeMode] = useState<"light" | "dark">(
@@ -33,21 +41,29 @@ const App = () => {
   }, [themeMode]);
 
   const [wordlist, setWordlist] = useState<any>();
-  const [words, setWords] = useState<{ romaji: string[]; kanji: string[] }>({
-    romaji: ["nihongo", "pasuwa-do", "kawarini", "naruyo"],
+  const [words, setWords] = useState<{ kana: string[]; kanji: string[] }>({
+    kana: ["にほんご", "ぱすわーど", "かわりに", "なるよ"],
     kanji: ["日本語", "パスワード", "代わりに", "なるよ"],
   });
+  const [romajiStyle, setRomajiStyle] = useState<RomajiStyle>("hepburn");
+  const [nStyle, setNStyle] = useState<NStyle>("apostrophe");
   const [separator, setSeparator] = useState(".");
   const [isFirstGenerate, setIsFirstGenerate] = useState(true);
   const [wordCount, setWordCount] = useState(4);
-  const [numberEnabled, setNumberEnabled] = useState(false);
+  const [numberEnabled, setNumberEnabled] = useState(true);
   const [numberPosition, setNumberPosition] = useState<"start" | "end">("end");
   const [digitCount, setDigitCount] = useState(4);
   const [generatedConfig, setGeneratedConfig] =
     useState<GeneratedConfig | null>(null);
 
-  // Derived — updates instantly when separator changes, no regeneration needed
-  const passPhrase = words.romaji.join(separator);
+  // Derived — updates instantly when separator or romajiStyle changes, no regeneration needed
+  const romajiWords = words.kana.map((w) =>
+    applyNStyle(
+      wanakana.toRomaji(w, getToRomajiOptions(romajiStyle, nStyle)),
+      nStyle,
+    ),
+  );
+  const passPhrase = romajiWords.join(separator);
   const kanjiPassPhrase = words.kanji.join(separator);
 
   useEffect(() => {
@@ -68,7 +84,7 @@ const App = () => {
       const rand_index = Math.floor(Math.random() * wordlist.data.length);
       const pass_parts = wordlist.data[rand_index];
       union_pass[0].push(pass_parts[0]);
-      union_pass[1].push(wanakana.toRomaji(pass_parts[1]));
+      union_pass[1].push(pass_parts[1]); // store kana; romaji derived reactively
     }
     if (numberEnabled) {
       const num = Math.floor(Math.random() * Math.pow(10, digitCount))
@@ -82,7 +98,7 @@ const App = () => {
         union_pass[1].push(num);
       }
     }
-    setWords({ romaji: union_pass[1], kanji: union_pass[0] });
+    setWords({ kana: union_pass[1], kanji: union_pass[0] });
   };
 
   /*コピーボタン----------------------------------------------------------------------------------------------*/
@@ -116,12 +132,22 @@ const App = () => {
       <CssBaseline />
       <ThemeToggle>
         <IconButton
-          onClick={() =>
-            setThemeMode((m) => (m === "light" ? "dark" : "light"))
-          }
+          onClick={() => {
+            document.documentElement.classList.add("theme-transitioning");
+            setThemeMode((m) => (m === "light" ? "dark" : "light"));
+            setTimeout(
+              () =>
+                document.documentElement.classList.remove(
+                  "theme-transitioning",
+                ),
+              400,
+            );
+          }}
           aria-label="テーマ切り替え"
         >
-          {themeMode === "light" ? <DarkModeIcon /> : <LightModeIcon />}
+          <FadeIcon key={themeMode}>
+            {themeMode === "light" ? <DarkModeIcon /> : <LightModeIcon />}
+          </FadeIcon>
         </IconButton>
       </ThemeToggle>
       <Title>日本語パスフレーズジェネレーター</Title>
@@ -138,22 +164,53 @@ const App = () => {
         separator={separator}
         generatedConfig={generatedConfig}
       />
-      <SliderContainer>
-        <TestSlider title="単語数" value={wordCount} onChange={setWordCount} />
-      </SliderContainer>
-      <SliderContainer>
-        <SeparatorControl value={separator} onChange={setSeparator} />
-      </SliderContainer>
-      <SliderContainer>
-        <NumberSlotControl
-          enabled={numberEnabled}
-          onToggle={setNumberEnabled}
-          position={numberPosition}
-          onPositionChange={setNumberPosition}
-          digitCount={digitCount}
-          onDigitCountChange={setDigitCount}
-        />
-      </SliderContainer>
+      <Paper
+        variant="outlined"
+        sx={{
+          width: "100%",
+          maxWidth: 560,
+          mx: "auto",
+          my: 2,
+          overflow: "hidden",
+        }}
+      >
+        <Box sx={{ px: 3, py: 2, display: "flex", justifyContent: "center" }}>
+          <TestSlider
+            title="単語数"
+            value={wordCount}
+            onChange={setWordCount}
+          />
+        </Box>
+        <Divider />
+        <Box sx={{ px: 3, py: 2, display: "flex", justifyContent: "center" }}>
+          <NumberSlotControl
+            enabled={numberEnabled}
+            onToggle={setNumberEnabled}
+            position={numberPosition}
+            onPositionChange={setNumberPosition}
+            digitCount={digitCount}
+            onDigitCountChange={setDigitCount}
+          />
+        </Box>
+        <Divider />
+        <Box sx={{ px: 3, py: 2, display: "flex", justifyContent: "center" }}>
+          <SeparatorControl value={separator} onChange={setSeparator} />
+        </Box>
+        <Divider />
+        <Box
+          sx={{
+            px: 3,
+            py: 2,
+            display: "flex",
+            gap: 4,
+            justifyContent: "center",
+            flexWrap: "wrap",
+          }}
+        >
+          <RomajiStyleControl value={romajiStyle} onChange={setRomajiStyle} />
+          <NStyleControl value={nStyle} onChange={setNStyle} />
+        </Box>
+      </Paper>
       <GenerateButton
         onClick={() => generatePassPhrase()}
         variant="outlined"
@@ -174,6 +231,21 @@ const ThemeToggle = styled.div`
   right: 1rem;
 `;
 
+const FadeIcon = styled.span`
+  display: flex;
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: rotate(-45deg) scale(0.7);
+    }
+    to {
+      opacity: 1;
+      transform: rotate(0deg) scale(1);
+    }
+  }
+  animation: fadeIn 0.2s ease;
+`;
+
 const Title = styled.h1``;
 
 const GenerateButton = styled(Button)<{ $flashing: boolean }>`
@@ -190,12 +262,6 @@ const GenerateButton = styled(Button)<{ $flashing: boolean }>`
     $flashing && `animation: pulse 1.2s ease-in-out infinite;`}
 `;
 
-const SliderContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  margin: 1rem 0;
-`;
-
 const PassphraseContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -203,19 +269,19 @@ const PassphraseContainer = styled.div`
   justify-content: center;
   height: 5lh;
   width: 100%;
-  font-size: 3rem;
+  font-size: clamp(1.5rem, 5vw, 3rem);
   margin: 2rem 0;
 `;
 
 const PassPhrase = styled.div`
-  font-size: 3rem;
+  font-size: clamp(1.5rem, 5vw, 3rem);
   font-weight: bold;
   padding: 1rem 0;
   word-break: break-all;
 `;
 
 const KanjiPassPhrase = styled.div`
-  font-size: 2rem;
+  font-size: clamp(1rem, 3.5vw, 2rem);
   font-weight: bold;
   padding: 0 0 1rem 0;
   color: #888;
