@@ -16,6 +16,7 @@
     "@mui/icons-material": "^7.0.2",
     "@mui/material": "^7.0.2",
     "@mui/styled-engine-sc": "^7.0.2",
+    "@twemoji/api": "^17.0.2",
     "@types/papaparse": "^5.3.16",
     "papaparse": "^5.5.3",
     "react": "^19.0.0",

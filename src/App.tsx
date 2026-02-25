@@ -20,6 +20,7 @@ import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import LightModeIcon from "@mui/icons-material/LightMode";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
 import WordCountSlider from "./components/WordCountSlider";
+import Twemoji from "./components/Twemoji";
 import EntropyDisplay, { GeneratedConfig } from "./components/EntropyDisplay";
 import NumberSlotControl from "./components/NumberSlotControl";
 import SeparatorControl from "./components/SeparatorControl";
@@ -185,7 +186,9 @@ const App = () => {
           </FadeIcon>
         </IconButton>
       </ThemeToggle>
-      <Title>日本語パスフレーズジェネレーター</Title>
+      <Title>
+        <Twemoji>🇯🇵</Twemoji> 日本語パスフレーズジェネレーター
+      </Title>
       <div>
         <p>日本語でパスフレーズ（パスワードの代わりになるもの）を作れます。</p>
       </div>
