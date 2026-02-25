@@ -1,22 +1,17 @@
-import * as React from 'react';
-import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
-import Switch from '@mui/material/Switch';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import ToggleButton from '@mui/material/ToggleButton';
-import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
-import MuiInput from '@mui/material/Input';
-import styled from 'styled-components';
-
-const Input = styled(MuiInput)`
-  width: 42px;
-`;
+import * as React from "react";
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
+import Switch from "@mui/material/Switch";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import ToggleButton from "@mui/material/ToggleButton";
+import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
+import MuiInput from "@mui/material/Input";
 
 type NumberSlotControlProps = {
   enabled: boolean;
   onToggle: (enabled: boolean) => void;
-  position: 'start' | 'end';
-  onPositionChange: (position: 'start' | 'end') => void;
+  position: "start" | "end";
+  onPositionChange: (position: "start" | "end") => void;
   digitCount: number;
   onDigitCountChange: (count: number) => void;
 };
@@ -30,7 +25,7 @@ const NumberSlotControl: React.FC<NumberSlotControlProps> = ({
   onDigitCountChange,
 }) => {
   const handleDigitChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    onDigitCountChange(event.target.value === '' ? 2 : Number(event.target.value));
+    onDigitCountChange(event.target.value === "" ? 2 : Number(event.target.value));
   };
 
   const handleDigitBlur = () => {
@@ -39,7 +34,7 @@ const NumberSlotControl: React.FC<NumberSlotControlProps> = ({
   };
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
+    <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 1 }}>
       <FormControlLabel
         control={
           <Switch
@@ -51,7 +46,7 @@ const NumberSlotControl: React.FC<NumberSlotControlProps> = ({
         label="数字スロットを追加（オススメ！）"
       />
       {enabled && (
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, flexWrap: 'wrap', justifyContent: 'center' }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 3, flexWrap: "wrap", justifyContent: "center" }}>
           <ToggleButtonGroup
             value={position}
             exclusive
@@ -61,19 +56,20 @@ const NumberSlotControl: React.FC<NumberSlotControlProps> = ({
             <ToggleButton value="start">先頭</ToggleButton>
             <ToggleButton value="end">末尾</ToggleButton>
           </ToggleButtonGroup>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             <Typography variant="body2">桁数:</Typography>
-            <Input
+            <MuiInput
               value={digitCount}
               size="small"
               onChange={handleDigitChange}
               onBlur={handleDigitBlur}
+              sx={{ width: "42px" }}
               inputProps={{
                 step: 1,
                 min: 2,
                 max: 10,
-                type: 'number',
-                'aria-label': '桁数',
+                type: "number",
+                "aria-label": "桁数",
               }}
             />
           </Box>

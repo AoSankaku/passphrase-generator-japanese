@@ -1,4 +1,3 @@
-import styled from "styled-components";
 import * as React from "react";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
@@ -6,15 +5,13 @@ import Typography from "@mui/material/Typography";
 import Slider from "@mui/material/Slider";
 import MuiInput from "@mui/material/Input";
 
-const Input = styled(MuiInput)`
-  width: 42px;
-`;
-type TestSliderPlops = {
+type WordCountSliderProps = {
   title: string;
   value: number;
   onChange: (value: number) => void;
 };
-const TestSlider: React.FC<TestSliderPlops> = ({ title, value, onChange }) => {
+
+const TestSlider: React.FC<WordCountSliderProps> = ({ title, value, onChange }) => {
   const handleSliderChange = (_event: Event, newValue: number | number[]) => {
     onChange(newValue as number);
   };
@@ -24,11 +21,8 @@ const TestSlider: React.FC<TestSliderPlops> = ({ title, value, onChange }) => {
   };
 
   const handleBlur = () => {
-    if (value < 4) {
-      onChange(4);
-    } else if (value > 10) {
-      onChange(10);
-    }
+    if (value < 4) onChange(4);
+    else if (value > 10) onChange(10);
   };
 
   return (
@@ -48,11 +42,12 @@ const TestSlider: React.FC<TestSliderPlops> = ({ title, value, onChange }) => {
           />
         </Grid>
         <Grid>
-          <Input
+          <MuiInput
             value={value}
             size="small"
             onChange={handleInputChange}
             onBlur={handleBlur}
+            sx={{ width: "42px" }}
             inputProps={{
               step: 1,
               min: 4,
@@ -66,4 +61,5 @@ const TestSlider: React.FC<TestSliderPlops> = ({ title, value, onChange }) => {
     </Box>
   );
 };
+
 export default TestSlider;

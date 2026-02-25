@@ -1,6 +1,14 @@
 import "./App.css";
 import styled from "styled-components";
-import { Button, Input, IconButton, Paper, Divider, Box } from "@mui/material";
+import {
+  Button,
+  IconButton,
+  Paper,
+  Divider,
+  Box,
+  Snackbar,
+  Alert,
+} from "@mui/material";
 import { useState, useEffect, useMemo } from "react";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
@@ -11,20 +19,62 @@ import ReplayIcon from "@mui/icons-material/Replay";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import LightModeIcon from "@mui/icons-material/LightMode";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
-import TestSlider from "./components/TestSlider.tsx";
-import EntropyDisplay, {
-  GeneratedConfig,
-} from "./components/EntropyDisplay.tsx";
-import NumberSlotControl from "./components/NumberSlotControl.tsx";
-import SeparatorControl from "./components/SeparatorControl.tsx";
-import RomajiStyleControl from "./components/RomajiStyleControl.tsx";
-import NStyleControl from "./components/NStyleControl.tsx";
+import TestSlider from "./components/TestSlider";
+import EntropyDisplay, { GeneratedConfig } from "./components/EntropyDisplay";
+import NumberSlotControl from "./components/NumberSlotControl";
+import SeparatorControl from "./components/SeparatorControl";
+import RomajiStyleControl from "./components/RomajiStyleControl";
+import NStyleControl from "./components/NStyleControl";
 import {
   getToRomajiOptions,
   applyNStyle,
   type RomajiStyle,
   type NStyle,
-} from "./lib/romajiMappings.ts";
+} from "./lib/romajiMappings";
+import { useLocalStorage } from "./hooks/useLocalStorage";
+
+function CopyButton({
+  passPhrase,
+  disabled,
+}: {
+  passPhrase: string;
+  disabled: boolean;
+}) {
+  const [open, setOpen] = useState(false);
+
+  const handleClick = async () => {
+    try {
+      await navigator.clipboard.writeText(passPhrase);
+      setOpen(true);
+    } catch (err) {
+      console.error("コピーエラー:", err);
+    }
+  };
+
+  return (
+    <>
+      <Button
+        onClick={handleClick}
+        variant="contained"
+        startIcon={<ContentCopyIcon />}
+        size="large"
+        disabled={disabled}
+      >
+        コピー
+      </Button>
+      <Snackbar
+        open={open}
+        autoHideDuration={2000}
+        onClose={() => setOpen(false)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert severity="success" onClose={() => setOpen(false)}>
+          コピーしました！
+        </Alert>
+      </Snackbar>
+    </>
+  );
+}
 
 const App = () => {
   const [themeMode, setThemeMode] = useState<"light" | "dark">(
@@ -40,23 +90,38 @@ const App = () => {
     document.documentElement.setAttribute("data-theme", themeMode);
   }, [themeMode]);
 
-  const [wordlist, setWordlist] = useState<any>();
+  const [wordlist, setWordlist] = useState<string[][]>([]);
   const [words, setWords] = useState<{ kana: string[]; kanji: string[] }>({
     kana: ["にほんご", "ぱすわーど", "かわりに", "なるよ"],
     kanji: ["日本語", "パスワード", "代わりに", "なるよ"],
   });
-  const [romajiStyle, setRomajiStyle] = useState<RomajiStyle>("hepburn");
-  const [nStyle, setNStyle] = useState<NStyle>("apostrophe");
-  const [separator, setSeparator] = useState(".");
-  const [isFirstGenerate, setIsFirstGenerate] = useState(true);
-  const [wordCount, setWordCount] = useState(4);
-  const [numberEnabled, setNumberEnabled] = useState(true);
-  const [numberPosition, setNumberPosition] = useState<"start" | "end">("end");
-  const [digitCount, setDigitCount] = useState(4);
+  const [romajiStyle, setRomajiStyle] = useLocalStorage<RomajiStyle>(
+    "romajiStyle",
+    "hepburn",
+  );
+  const [nStyle, setNStyle] = useLocalStorage<NStyle>("nStyle", "apostrophe");
+  const [separator, setSeparator] = useLocalStorage("separator", ".");
+  const [wordCount, setWordCount] = useLocalStorage("wordCount", 4);
+  const [numberEnabled, setNumberEnabled] = useLocalStorage(
+    "numberEnabled",
+    true,
+  );
+  const [numberPosition, setNumberPosition] = useLocalStorage<"start" | "end">(
+    "numberPosition",
+    "end",
+  );
+  const [digitCount, setDigitCount] = useLocalStorage("digitCount", 4);
   const [generatedConfig, setGeneratedConfig] =
     useState<GeneratedConfig | null>(null);
 
-  // Derived — updates instantly when separator or romajiStyle changes, no regeneration needed
+  const needsRegeneration =
+    generatedConfig === null ||
+    generatedConfig.wordCount !== wordCount ||
+    generatedConfig.numberEnabled !== numberEnabled ||
+    generatedConfig.digitCount !== digitCount ||
+    generatedConfig.numberPosition !== numberPosition;
+
+  // Derived — updates instantly when separator, romajiStyle, or nStyle changes
   const romajiWords = words.kana.map((w) =>
     applyNStyle(
       wanakana.toRomaji(w, getToRomajiOptions(romajiStyle, nStyle)),
@@ -67,63 +132,46 @@ const App = () => {
   const kanjiPassPhrase = words.kanji.join(separator);
 
   useEffect(() => {
-    setWordlist(Papa.parse(wordlist_csv));
+    setWordlist(Papa.parse<string[]>(wordlist_csv).data);
   }, []);
 
-  useEffect(() => {
-    console.dir(wordlist);
-  }, [wordlist]);
-
-  /*ランダムパスワード生成----------------------------------------------------------------------------------*/
   const generatePassPhrase = () => {
-    setIsFirstGenerate(false);
-    setGeneratedConfig({ wordCount, numberEnabled, digitCount });
+    setGeneratedConfig({
+      wordCount,
+      numberEnabled,
+      digitCount,
+      numberPosition,
+    });
 
-    const union_pass: [string[], string[]] = [[], []];
+    const kanji: string[] = [];
+    const kana: string[] = [];
     for (let i = 0; i < wordCount; i++) {
-      const rand_index = Math.floor(Math.random() * wordlist.data.length);
-      const pass_parts = wordlist.data[rand_index];
-      union_pass[0].push(pass_parts[0]);
-      union_pass[1].push(pass_parts[1]); // store kana; romaji derived reactively
+      const entry = wordlist[Math.floor(Math.random() * wordlist.length)];
+      kanji.push(entry[0]);
+      kana.push(entry[1]);
     }
     if (numberEnabled) {
-      const num = Math.floor(Math.random() * Math.pow(10, digitCount))
-        .toString()
-        .padStart(digitCount, "0");
+      const num = String(Math.floor(Math.random() * 10 ** digitCount)).padStart(
+        digitCount,
+        "0",
+      );
       if (numberPosition === "start") {
-        union_pass[0].unshift(num);
-        union_pass[1].unshift(num);
+        kanji.unshift(num);
+        kana.unshift(num);
       } else {
-        union_pass[0].push(num);
-        union_pass[1].push(num);
+        kanji.push(num);
+        kana.push(num);
       }
     }
-    setWords({ kana: union_pass[1], kanji: union_pass[0] });
+    setWords({ kana, kanji });
   };
 
-  /*コピーボタン----------------------------------------------------------------------------------------------*/
-  const CopyButton = () => {
-    const [copyStatus, setCopyStatus] = useState("");
-    const handleCopyClick = async () => {
-      try {
-        await navigator.clipboard.writeText(passPhrase);
-      } catch (err) {
-        setTimeout(() => setCopyStatus(""), 2000); // 2秒後にメッセージを消す
-        setCopyStatus("コピーに失敗しました。");
-        console.error("コピーエラー:", err);
-      }
-    };
-
-    return (
-      <Button
-        onClick={handleCopyClick}
-        variant="contained"
-        startIcon={<ContentCopyIcon />}
-        size="large"
-        disabled={isFirstGenerate}
-      >
-        コピー
-      </Button>
+  const handleThemeToggle = () => {
+    document.documentElement.classList.add("theme-transitioning");
+    setThemeMode((m) => (m === "light" ? "dark" : "light"));
+    setTimeout(
+      () => document.documentElement.classList.remove("theme-transitioning"),
+      400,
     );
   };
 
@@ -131,20 +179,7 @@ const App = () => {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <ThemeToggle>
-        <IconButton
-          onClick={() => {
-            document.documentElement.classList.add("theme-transitioning");
-            setThemeMode((m) => (m === "light" ? "dark" : "light"));
-            setTimeout(
-              () =>
-                document.documentElement.classList.remove(
-                  "theme-transitioning",
-                ),
-              400,
-            );
-          }}
-          aria-label="テーマ切り替え"
-        >
+        <IconButton onClick={handleThemeToggle} aria-label="テーマ切り替え">
           <FadeIcon key={themeMode}>
             {themeMode === "light" ? <DarkModeIcon /> : <LightModeIcon />}
           </FadeIcon>
@@ -155,12 +190,26 @@ const App = () => {
         <p>日本語でパスフレーズ（パスワードの代わりになるもの）を作れます。</p>
       </div>
       <PassphraseContainer>
-        <PassPhrase>{passPhrase}</PassPhrase>
-        <KanjiPassPhrase>{kanjiPassPhrase}</KanjiPassPhrase>
+        <PassPhrase>
+          {romajiWords.map((word, i) => (
+            <span key={i}>
+              {word}
+              {i < romajiWords.length - 1 && <Separator>{separator}</Separator>}
+            </span>
+          ))}
+        </PassPhrase>
+        <KanjiPassPhrase>
+          {words.kanji.map((word, i) => (
+            <span key={i}>
+              {word}
+              {i < words.kanji.length - 1 && <Separator>{separator}</Separator>}
+            </span>
+          ))}
+        </KanjiPassPhrase>
       </PassphraseContainer>
       <EntropyDisplay
         passPhrase={passPhrase}
-        wordlistSize={wordlist?.data?.length ?? 0}
+        wordlistSize={wordlist.length}
         separator={separator}
         generatedConfig={generatedConfig}
       />
@@ -211,19 +260,28 @@ const App = () => {
           <NStyleControl value={nStyle} onChange={setNStyle} />
         </Box>
       </Paper>
-      <GenerateButton
-        onClick={() => generatePassPhrase()}
-        variant="outlined"
-        startIcon={<ReplayIcon />}
-        size="large"
-        $flashing={isFirstGenerate}
-      >
-        生成
-      </GenerateButton>
-      <CopyButton />
+      <Box sx={{ display: "flex", gap: 2, justifyContent: "center" }}>
+        <GenerateButton
+          onClick={generatePassPhrase}
+          variant="outlined"
+          startIcon={<ReplayIcon />}
+          size="large"
+          $flashing={needsRegeneration}
+        >
+          生成
+        </GenerateButton>
+        <CopyButton
+          passPhrase={passPhrase}
+          disabled={generatedConfig === null}
+        />
+      </Box>
     </ThemeProvider>
   );
 };
+
+const Separator = styled.span`
+  opacity: 0.55;
+`;
 
 const ThemeToggle = styled.div`
   position: fixed;

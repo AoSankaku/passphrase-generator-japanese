@@ -14,6 +14,7 @@ export type GeneratedConfig = {
   wordCount: number;
   numberEnabled: boolean;
   digitCount: number;
+  numberPosition: "start" | "end";
 };
 
 type EntropyDisplayProps = {
