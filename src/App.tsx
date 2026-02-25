@@ -19,7 +19,7 @@ import ReplayIcon from "@mui/icons-material/Replay";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import LightModeIcon from "@mui/icons-material/LightMode";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
-import TestSlider from "./components/TestSlider";
+import WordCountSlider from "./components/WordCountSlider";
 import EntropyDisplay, { GeneratedConfig } from "./components/EntropyDisplay";
 import NumberSlotControl from "./components/NumberSlotControl";
 import SeparatorControl from "./components/SeparatorControl";
@@ -213,6 +213,21 @@ const App = () => {
         separator={separator}
         generatedConfig={generatedConfig}
       />
+      <Box sx={{ display: "flex", gap: 2, justifyContent: "center" }}>
+        <GenerateButton
+          onClick={generatePassPhrase}
+          variant="outlined"
+          startIcon={<ReplayIcon />}
+          size="large"
+          $flashing={needsRegeneration}
+        >
+          生成
+        </GenerateButton>
+        <CopyButton
+          passPhrase={passPhrase}
+          disabled={generatedConfig === null}
+        />
+      </Box>
       <Paper
         variant="outlined"
         sx={{
@@ -224,7 +239,7 @@ const App = () => {
         }}
       >
         <Box sx={{ px: 3, py: 2, display: "flex", justifyContent: "center" }}>
-          <TestSlider
+          <WordCountSlider
             title="単語数"
             value={wordCount}
             onChange={setWordCount}
@@ -260,21 +275,6 @@ const App = () => {
           <NStyleControl value={nStyle} onChange={setNStyle} />
         </Box>
       </Paper>
-      <Box sx={{ display: "flex", gap: 2, justifyContent: "center" }}>
-        <GenerateButton
-          onClick={generatePassPhrase}
-          variant="outlined"
-          startIcon={<ReplayIcon />}
-          size="large"
-          $flashing={needsRegeneration}
-        >
-          生成
-        </GenerateButton>
-        <CopyButton
-          passPhrase={passPhrase}
-          disabled={generatedConfig === null}
-        />
-      </Box>
     </ThemeProvider>
   );
 };

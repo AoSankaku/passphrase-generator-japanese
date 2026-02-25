@@ -11,7 +11,11 @@ type WordCountSliderProps = {
   onChange: (value: number) => void;
 };
 
-const TestSlider: React.FC<WordCountSliderProps> = ({ title, value, onChange }) => {
+const WordCountSlider: React.FC<WordCountSliderProps> = ({
+  title,
+  value,
+  onChange,
+}) => {
   const handleSliderChange = (_event: Event, newValue: number | number[]) => {
     onChange(newValue as number);
   };
@@ -62,4 +66,4 @@ const TestSlider: React.FC<WordCountSliderProps> = ({ title, value, onChange }) 
   );
 };
 
-export default TestSlider;
+export default WordCountSlider;
