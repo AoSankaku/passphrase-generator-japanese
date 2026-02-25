@@ -19,6 +19,8 @@ import ReplayIcon from "@mui/icons-material/Replay";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import LightModeIcon from "@mui/icons-material/LightMode";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
+import GitHubIcon from "@mui/icons-material/GitHub";
+import HomeIcon from "@mui/icons-material/Home";
 import WordCountSlider from "./components/WordCountSlider";
 import Twemoji from "./components/Twemoji";
 import EntropyDisplay, { GeneratedConfig } from "./components/EntropyDisplay";
@@ -27,6 +29,7 @@ import SeparatorControl from "./components/SeparatorControl";
 import RomajiStyleControl from "./components/RomajiStyleControl";
 import NStyleControl from "./components/NStyleControl";
 import QandA from "./components/QandA";
+import Footer from "./components/Footer";
 import {
   getToRomajiOptions,
   applyNStyle,
@@ -181,7 +184,40 @@ const App = () => {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <ThemeToggle>
-        <IconButton onClick={handleThemeToggle} aria-label="テーマ切り替え">
+        <IconButton
+          href="https://aosankaku.net"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="ホームページ"
+          component="a"
+          sx={{
+            transition: "background-color 0.3s ease, color 0.3s ease",
+            color: "inherit",
+          }}
+        >
+          <HomeIcon />
+        </IconButton>
+        <IconButton
+          href="https://github.com/AoSankaku/passphrase-generator-japanese"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="GitHubリポジトリ"
+          component="a"
+          sx={{
+            transition: "background-color 0.3s ease, color 0.3s ease",
+            color: "inherit",
+          }}
+        >
+          <GitHubIcon />
+        </IconButton>
+        <IconButton
+          onClick={handleThemeToggle}
+          aria-label="テーマ切り替え"
+          sx={{
+            transition: "background-color 0.3s ease, color 0.3s ease",
+            color: "inherit",
+          }}
+        >
           <FadeIcon key={themeMode}>
             {themeMode === "light" ? <DarkModeIcon /> : <LightModeIcon />}
           </FadeIcon>
@@ -280,6 +316,7 @@ const App = () => {
         </Box>
       </Paper>
       <QandA />
+      <Footer />
     </ThemeProvider>
   );
 };
@@ -292,6 +329,8 @@ const ThemeToggle = styled.div`
   position: fixed;
   top: 1rem;
   right: 1rem;
+  display: flex;
+  align-items: center;
 `;
 
 const FadeIcon = styled.span`
