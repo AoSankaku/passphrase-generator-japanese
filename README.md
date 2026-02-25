@@ -93,4 +93,8 @@ See [`src/assets/wordlist_rules.md`](src/assets/wordlist_rules.md) for the full 
 
 ## ライセンス / License
 
-© 2026 [Blue Triangle](https://aosankaku.net) All rights reserved.
+[GNU Affero General Public License v3.0](LICENSE) © 2026 [Blue Triangle](https://aosankaku.net)
+
+このソフトウェアはAGPL v3のもとで公開されています。改変・再配布・ウェブサービスとしての運用を行う場合、同じライセンスのもとでソースコードを公開する義務があります。なお、これはセキュリティ上の理由によるものです。
+
+This software is licensed under AGPL v3. Any fork — including modified versions run as a web service — must be released under the same license with source code made available. I chose this license for security concerns.
