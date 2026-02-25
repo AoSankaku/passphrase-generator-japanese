@@ -1,20 +1,26 @@
 <!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite + React + TS</title>
-    <!-- Runs synchronously before paint to avoid theme flash -->
-    <script>
-      (function () {
-        var t = localStorage.getItem('theme') || 'light';
-        document.documentElement.setAttribute('data-theme', t);
-      })();
-    </script>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="author" content="Blue Triangle" />
+  <meta name="description" content="パスワードの代わりに覚えやすくて強固なパスフレーズを生成します。日本語のパスフレーズ生成に特化しています。" />
+  <meta property="og:title" content="日本語パスフレーズジェネレーター" />
+  <title>日本語パスフレーズジェネレーター</title>
+  <!-- Runs synchronously before paint to avoid theme flash -->
+  <script>
+    (function () {
+      var t = localStorage.getItem('theme') || 'light';
+      document.documentElement.setAttribute('data-theme', t);
+    })();
+  </script>
+</head>
+
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+
 </html>
