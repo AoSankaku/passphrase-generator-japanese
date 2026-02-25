@@ -4,6 +4,7 @@ import AccordionDetails from "@mui/material/AccordionDetails";
 import Typography from "@mui/material/Typography";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import Box from "@mui/material/Box";
+import ReactMarkdown from "react-markdown";
 
 const items = [
   {
@@ -12,15 +13,15 @@ const items = [
   },
   {
     q: "なぜ日本語？",
-    a: "英語圏には英語でパスフレーズを作る文化がありますが、日本語で同じことができるツールがなかったため作りました。",
+    a: "英語でパスフレーズを作るツールはもうありますが、日本語で同じことができるツールがなかったため作りました。ちなみに、英語のパスフレーズは[このサイトとか](https://bitwarden.com/passphrase-generator/)から作ることもできます。",
   },
   {
     q: "そもそもこのサイトは安全ですか？",
-    a: "このサイトは生成したパスワードをお使いのブラウザにもウチのサーバーにも保管しないため、安全です。どうしても不安でしょうがない人はソースコードも見ることができます。",
+    a: "このサイトは生成したパスワードをお使いのブラウザにもウチのサーバーにも保管しないため、安全です。どうしても不安でしょうがない人は[ソースコードも見ることができます](https://github.com/AoSankaku/passphrase-generator-japanese)。",
   },
   {
     q: "パスワードじゃだめなの？",
-    a: "パスワードには、全然覚えられないという先天的な欠陥があります。パスフレーズを活用することで、覚えやすいのに圧倒的に強固なパスワードができます。",
+    a: "パスワードには、**全然覚えられない**という先天的な欠陥があります。パスフレーズを活用することで、覚えやすいのに圧倒的に強固なパスワードができます。",
   },
   {
     q: "パスワードとパスフレーズはどっちが強いですか？",
@@ -28,7 +29,7 @@ const items = [
   },
   {
     q: "でも大量のパスワードを覚えるのは無理じゃないですか？",
-    a: "全くもっておっしゃるとおりです。なので、パスワードマネージャーの利用を推奨しています。パスワードマネージャーを使えば、覚える必要があるのはパスワードを見るためのマスターパスワードだけになります。",
+    a: "**全くもっておっしゃるとおりです**。なので、パスワードマネージャーの利用を推奨しています。パスワードマネージャーを使えば、覚える必要があるのはパスワードを見るためのマスターパスワードだけになります。[Bitwarden](https://bitwarden.com/ja-jp/)や[Proton Pass](https://proton.me/ja/pass)がおすすめです。",
   },
 ];
 
@@ -41,9 +42,22 @@ export default function QandA() {
             <Typography>{item.q}</Typography>
           </AccordionSummary>
           <AccordionDetails>
-            <Typography color="text.secondary" sx={{ textAlign: "left" }}>
+            <ReactMarkdown
+              components={{
+                p: ({ children }) => (
+                  <Typography color="text.secondary" sx={{ textAlign: "left" }}>
+                    {children}
+                  </Typography>
+                ),
+                a: ({ href, children }) => (
+                  <a href={href} target="_blank" rel="noopener noreferrer">
+                    {children}
+                  </a>
+                ),
+              }}
+            >
               {item.a}
-            </Typography>
+            </ReactMarkdown>
           </AccordionDetails>
         </Accordion>
       ))}
