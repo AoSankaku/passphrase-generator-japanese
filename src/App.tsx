@@ -8,6 +8,7 @@ import {
   Box,
   Snackbar,
   Alert,
+  Typography,
 } from "@mui/material";
 import { useState, useEffect, useMemo } from "react";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
@@ -274,10 +275,28 @@ const App = () => {
           width: "100%",
           maxWidth: 560,
           mx: "auto",
-          my: 2,
+          mt: 4,
+          mb: 2,
           overflow: "hidden",
         }}
       >
+        <Box
+          sx={{
+            px: 3,
+            py: 1.5,
+            borderBottom: 1,
+            borderColor: "divider",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 1,
+          }}
+        >
+          <Twemoji>⚙️</Twemoji>
+          <Typography variant="subtitle2" color="text.secondary">
+            カスタマイズ
+          </Typography>
+        </Box>
         <Box sx={{ px: 3, py: 2, display: "flex", justifyContent: "center" }}>
           <WordCountSlider
             title="単語数"
@@ -352,7 +371,7 @@ const Title = styled.h1`
   margin-top: 10vh;
 `;
 
-const GenerateButton = styled(Button) <{ $flashing: boolean }>`
+const GenerateButton = styled(Button)<{ $flashing: boolean }>`
   @keyframes pulse {
     0%,
     100% {
