@@ -48,28 +48,28 @@ const LEVELS: {
   range: string;
   description: string;
 }[] = [
-    {
-      color: "error",
-      label: "危険",
-      range: "56 bits未満",
-      description:
-        "オフライン攻撃（流出したデータベースへの総当たり攻撃）に対して脆弱です。現代のGPUを使えば数時間〜数日で解読される可能性があります。オンラインサービスでは即座にアカウントがロックされるため実質的には安全ですが、パスワードが漏洩した場合に備えて単語数や数字スロットを増やすことを強くお勧めします。",
-    },
-    {
-      color: "warning",
-      label: "普通",
-      range: "56〜80 bits",
-      description:
-        "ログイン試行が制限されるオンラインサービスには十分な強度です。ただし、オフライン攻撃に対しては将来的なハードウェアの進化によって危険になる可能性があります。重要なアカウントには単語数を増やすことをお勧めします。",
-    },
-    {
-      color: "success",
-      label: "安全",
-      range: "80 bits以上",
-      description:
-        "オンライン・オフライン両方の攻撃に対して十分な強度です。現在および近い将来の技術では、総当たり攻撃による解読は現実的に不可能です。重要なアカウントにも安心して使用できます。",
-    },
-  ];
+  {
+    color: "error",
+    label: "危険",
+    range: "56 bits未満",
+    description:
+      "オフライン攻撃（流出したデータベースへの総当たり攻撃）に対して脆弱です。現代のGPUを使えば数時間〜数日で解読される可能性があります。オンラインサービスでは即座にアカウントがロックされるため実質的には安全ですが、パスワードが漏洩した場合に備えて単語数や数字スロットを増やすことを強くお勧めします。",
+  },
+  {
+    color: "warning",
+    label: "普通",
+    range: "56〜80 bits",
+    description:
+      "ログイン試行が制限されるオンラインサービスには十分な強度です。ただし、オフライン攻撃に対しては将来的なハードウェアの進化によって危険になる可能性があります。重要なアカウントには単語数を増やすことをお勧めします。",
+  },
+  {
+    color: "success",
+    label: "安全",
+    range: "80 bits以上",
+    description:
+      "オンライン・オフライン両方の攻撃に対して十分な強度です。現在および近い将来の技術では、総当たり攻撃による解読は現実的に不可能です。重要なアカウントにも安心して使用できます。",
+  },
+];
 
 const EntropyDisplay: React.FC<EntropyDisplayProps> = ({
   passPhrase,
@@ -95,7 +95,15 @@ const EntropyDisplay: React.FC<EntropyDisplayProps> = ({
   const wordEntropy =
     wordlistSize > 1 ? wordCount * Math.log2(wordlistSize) : 0;
   const digitEntropy = numberEnabled ? digitCount * Math.log2(10) : 0;
-  const realEntropy = wordEntropy + digitEntropy;
+  // Non-word chars in the charset are those introduced solely by the separator.
+  // Each separator char is modelled as drawn from that sub-alphabet.
+  // A single known char (e.g. ".") gives size=1 → log₂(1)=0, correctly adding nothing.
+  const nonWordCharsetSize = charset.size - 26 - (numberEnabled ? 10 : 0);
+  const separatorEntropy =
+    nonWordCharsetSize > 1
+      ? separator.length * Math.log2(nonWordCharsetSize)
+      : 0;
+  const realEntropy = wordEntropy + digitEntropy + separatorEntropy;
   const safety = getSafetyLevel(realEntropy);
 
   return (
@@ -111,9 +119,7 @@ const EntropyDisplay: React.FC<EntropyDisplayProps> = ({
       >
         <Box
           sx={{
-            display: "flex",
-            alignItems: "center",
-            gap: 0.5,
+            position: "relative",
             visibility: hasGenerated ? "visible" : "hidden",
           }}
         >
@@ -122,20 +128,39 @@ const EntropyDisplay: React.FC<EntropyDisplayProps> = ({
             size="small"
             onClick={() => setModalOpen(true)}
             aria-label="安全性の説明"
+            sx={{
+              position: "absolute",
+              left: "100%",
+              top: "50%",
+              transform: "translateY(-50%)",
+              ml: 0.5,
+            }}
           >
             <InfoOutlinedIcon fontSize="small" />
           </IconButton>
         </Box>
-        <Typography
-          variant="caption"
-          color="text.secondary"
+        <Box
           sx={{
-            visibility:
-              hasGenerated && safety.color !== "success" ? "visible" : "hidden",
+            minHeight: "2.5rem",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
           }}
         >
-          {getHint(safety.color)}
-        </Typography>
+          <Typography
+            variant="caption"
+            color="text.secondary"
+            sx={{
+              visibility:
+                hasGenerated && safety.color !== "success"
+                  ? "visible"
+                  : "hidden",
+              textAlign: "center",
+            }}
+          >
+            {getHint(safety.color)}
+          </Typography>
+        </Box>
         <Box
           sx={{
             display: "flex",
@@ -165,9 +190,14 @@ const EntropyDisplay: React.FC<EntropyDisplayProps> = ({
         <DialogTitle>安全性レベルについて</DialogTitle>
         <DialogContent>
           <Box
-            sx={{ display: "flex", gap: 4, marginBottom: 2, alignItems: "flex-start" }}
+            sx={{
+              display: "flex",
+              gap: 4,
+              marginBottom: 2,
+              alignItems: "flex-start",
+            }}
           >
-            「文字エントロピー」はパスワードがランダムな文字であると仮定した場合の強固さ、「単語エントロピー」はパスワードが単語の組み合わせであり、攻撃者がこのサイトを知っていると仮定した場合の強固さです。
+            「文字エントロピー」はパスワードがランダムな文字であると仮定した場合の強固さです。「単語エントロピー」はパスワードが単語の組み合わせであり、攻撃者がこのサイトを知っていると仮定した場合の強固さです。
           </Box>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 3, pt: 1 }}>
             {LEVELS.map(({ color, label, range, description }) => (
