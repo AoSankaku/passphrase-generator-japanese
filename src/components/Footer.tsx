@@ -3,7 +3,7 @@ import styled from "styled-components";
 export default function Footer() {
   return (
     <FooterRoot>
-      <p>Copyright © 2025 Blue Triangle</p>
+      <p>Copyright © 2026 Blue Triangle</p>
       <p>
         Made with{" "}
         <a href="https://vitejs.dev" target="_blank" rel="noopener noreferrer">
