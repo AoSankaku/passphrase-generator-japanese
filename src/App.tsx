@@ -371,7 +371,7 @@ const Title = styled.h1`
   margin-top: 10vh;
 `;
 
-const GenerateButton = styled(Button)<{ $flashing: boolean }>`
+const GenerateButton = styled(Button) <{ $flashing: boolean }>`
   @keyframes pulse {
     0%,
     100% {
