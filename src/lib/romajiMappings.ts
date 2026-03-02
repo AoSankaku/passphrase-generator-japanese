@@ -22,6 +22,10 @@ export const NIHON_MAPPING: Record<string, string> = {
   ぢゅ: "dyu",
   ぢょ: "dyo",
   づ: "du",
+  ふぁ: "fa",
+  ふぃ: "fi",
+  ふぇ: "fe",
+  ふぉ: "fo",
 };
 
 // Kunrei-shiki romanization (訓令式) — based on Nihon-shiki with a few merges
