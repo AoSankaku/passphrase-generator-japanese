@@ -22,9 +22,6 @@ jobs:
       with:
         python-version: '3.11' 
     
-    - name: 依存関係のインストール
-      run: pip install pandas
-
     - name: スクリプトの実行
       run: |
         cd src/assets
