@@ -85,6 +85,10 @@ The wordlist at `src/assets/wordlist.csv` is curated to include only words that:
 - ひらがな2〜7文字（拗音は0.5文字換算）/ Are 2–7 hiragana characters (contracted sounds count as 0.5)
 - 一般的な日常語のみ（専門用語・固有名詞・商標・不適切語を除く）/ Are common everyday words (no jargon, proper nouns, trademarks, or offensive terms)
 
+編集時には重複読みが一時的に入ることがありますが、公開用データは `src/assets/WordListSorter.py` により読み仮名重複を除去します。これは使い勝手とエントロピー計算の正確性を保つためです。
+
+While duplicate readings may temporarily appear during editing, the published wordlist is deduplicated by kana via `src/assets/WordListSorter.py` to preserve usability and accurate entropy calculation.
+
 詳細は [`src/assets/wordlist_rules.md`](src/assets/wordlist_rules.md) を参照してください。
 
 See [`src/assets/wordlist_rules.md`](src/assets/wordlist_rules.md) for the full specification.
