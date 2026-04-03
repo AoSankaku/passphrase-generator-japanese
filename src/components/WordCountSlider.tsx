@@ -5,6 +5,9 @@ import Typography from "@mui/material/Typography";
 import Slider from "@mui/material/Slider";
 import MuiInput from "@mui/material/Input";
 
+const MIN_WORD_COUNT = 1;
+const MAX_WORD_COUNT = 10;
+
 type WordCountSliderProps = {
   title: string;
   value: number;
@@ -21,12 +24,14 @@ const WordCountSlider: React.FC<WordCountSliderProps> = ({
   };
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    onChange(event.target.value === "" ? 4 : Number(event.target.value));
+    onChange(
+      event.target.value === "" ? MIN_WORD_COUNT : Number(event.target.value),
+    );
   };
 
   const handleBlur = () => {
-    if (value < 4) onChange(4);
-    else if (value > 10) onChange(10);
+    if (value < MIN_WORD_COUNT) onChange(MIN_WORD_COUNT);
+    else if (value > MAX_WORD_COUNT) onChange(MAX_WORD_COUNT);
   };
 
   return (
@@ -40,8 +45,8 @@ const WordCountSlider: React.FC<WordCountSliderProps> = ({
             value={value}
             onChange={handleSliderChange}
             aria-labelledby="input-slider"
-            min={4}
-            max={10}
+            min={MIN_WORD_COUNT}
+            max={MAX_WORD_COUNT}
             step={1}
           />
         </Grid>
@@ -54,8 +59,8 @@ const WordCountSlider: React.FC<WordCountSliderProps> = ({
             sx={{ width: "42px" }}
             inputProps={{
               step: 1,
-              min: 4,
-              max: 10,
+              min: MIN_WORD_COUNT,
+              max: MAX_WORD_COUNT,
               type: "number",
               "aria-labelledby": "input-slider",
             }}
