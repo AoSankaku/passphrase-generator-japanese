@@ -46,6 +46,7 @@ import {
 import { useLocalStorage } from "./hooks/useLocalStorage";
 
 type WordEntry = [string, string];
+type WordlistMap = Map<string, string>;
 
 type AdditionalWordsetDefinition = {
   id: string;
@@ -56,28 +57,41 @@ type AdditionalWordsetDefinition = {
   rawCsv: string;
 };
 
-const parseWordlistCsv = (rawCsv: string): WordEntry[] =>
-  Papa.parse<string[]>(rawCsv.trim(), { skipEmptyLines: true }).data
-    .filter((row): row is string[] => row.length >= 2)
-    .map((row) => [row[0].trim(), row[1].trim()]);
+const parseWordlistCsv = (rawCsv: string): WordlistMap => {
+  const rows = Papa.parse<string[]>(rawCsv.trim(), { skipEmptyLines: true }).data;
+  const wordlist = new Map<string, string>();
 
-const dedupeWordEntries = (rows: WordEntry[]): WordEntry[] => {
-  const seenRows = new Set<string>();
-  const seenKana = new Set<string>();
-  const deduped: WordEntry[] = [];
-
-  for (const [surface, kana] of rows) {
-    const rowKey = `${surface}\u0000${kana}`;
-    if (seenRows.has(rowKey) || seenKana.has(kana)) {
+  for (const row of rows) {
+    if (row.length < 2) {
       continue;
     }
-    seenRows.add(rowKey);
-    seenKana.add(kana);
-    deduped.push([surface, kana]);
+    const surface = row[0].trim();
+    const kana = row[1].trim();
+    if (!surface || !kana || wordlist.has(kana)) {
+      continue;
+    }
+    wordlist.set(kana, surface);
   }
 
-  return deduped;
+  return wordlist;
 };
+
+const mergeWordlists = (wordlists: Iterable<WordlistMap>): WordlistMap => {
+  const merged = new Map<string, string>();
+
+  for (const wordlist of wordlists) {
+    for (const [kana, surface] of wordlist) {
+      if (!merged.has(kana)) {
+        merged.set(kana, surface);
+      }
+    }
+  }
+
+  return merged;
+};
+
+const wordlistEntries = (wordlist: WordlistMap): WordEntry[] =>
+  Array.from(wordlist, ([kana, surface]) => [surface, kana]);
 
 const ADDITIONAL_WORDSETS: AdditionalWordsetDefinition[] = [
   {
@@ -207,11 +221,9 @@ const App = () => {
 
   const baseWordlist = useMemo(
     () =>
-      dedupeWordEntries([
-        ...Object.values(baseSubsetModules).flatMap((rawCsv) =>
-          parseWordlistCsv(String(rawCsv)),
-        ),
-      ]),
+      mergeWordlists(
+        Object.values(baseSubsetModules).map((rawCsv) => parseWordlistCsv(String(rawCsv))),
+      ),
     [],
   );
   const parsedAdditionalWordsets = useMemo(
@@ -221,7 +233,7 @@ const App = () => {
           wordset.id,
           parseWordlistCsv(wordset.rawCsv),
         ]),
-      ) as Record<string, WordEntry[]>,
+      ) as Record<string, WordlistMap>,
     [],
   );
   const availableWordsetIds = useMemo(
@@ -238,12 +250,15 @@ const App = () => {
   );
   const activeWordlist = useMemo(
     () =>
-      dedupeWordEntries([
-        ...baseWordlist,
-        ...normalizedSelectedWordsetIds.flatMap(
-          (id) => parsedAdditionalWordsets[id] ?? [],
-        ),
-      ]),
+      wordlistEntries(
+        mergeWordlists([
+          baseWordlist,
+          ...normalizedSelectedWordsetIds.flatMap((id) => {
+            const wordset = parsedAdditionalWordsets[id];
+            return wordset ? [wordset] : [];
+          }),
+        ]),
+      ),
     [baseWordlist, normalizedSelectedWordsetIds, parsedAdditionalWordsets],
   );
   const additionalWordsetOptions = useMemo<AdditionalWordsetOption[]>(
@@ -254,7 +269,7 @@ const App = () => {
         description: wordset.description,
         note: wordset.note,
         badge: wordset.badge,
-        count: parsedAdditionalWordsets[wordset.id]?.length ?? 0,
+        count: parsedAdditionalWordsets[wordset.id]?.size ?? 0,
       })),
     [parsedAdditionalWordsets],
   );
