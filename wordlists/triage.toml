@@ -1,0 +1,25 @@
+review_all_sources = [
+  "ninjal-educational-vocab-1984",
+]
+
+review_surface_contains = [
+  "暴力",
+  "死",
+  "自殺",
+  "殺人",
+  "犯罪",
+  "差別",
+  "麻薬",
+  "全裸",
+  "裸体",
+]
+
+review_kana_contains = [
+  "ぼうりょく",
+  "じさつ",
+  "はんざい",
+  "さべつ",
+  "まやく",
+  "ぜんら",
+  "らたい",
+]

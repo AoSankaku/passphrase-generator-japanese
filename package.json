@@ -7,8 +7,14 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "pbuild": "vite build",
+    "typecheck": "tsc -b",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "wordlists:fetch": "bun run wordlists/90_scripts/fetch_sources.ts",
+    "wordlists:normalize": "bun run wordlists/90_scripts/normalize_sources.ts",
+    "wordlists:triage": "bun run wordlists/90_scripts/triage_candidates.ts",
+    "wordlists:validate": "bun run wordlists/90_scripts/validate_curated.ts",
+    "wordlists:build": "bun run wordlists/90_scripts/build_wordlists.ts"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

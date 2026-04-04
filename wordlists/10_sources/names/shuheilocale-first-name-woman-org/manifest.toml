@@ -1,0 +1,14 @@
+id = "shuheilocale-first-name-woman-org"
+name = "shuheilocale 女性名 完全版"
+group = "names"
+url = "https://github.com/shuheilocale/japanese-personal-name-dataset"
+license = "MIT"
+usage = "女性名の追加ワードセット候補。漢字は無視し、読みからカタカナ表記へ正規化する"
+notes = "raw CSV は 1列目がひらがな、2列目がローマ字、3列目以降が漢字候補"
+fetch = "auto"
+license_checked_at = "2026-04-04"
+license_source = "https://github.com/shuheilocale/japanese-personal-name-dataset/blob/main/LICENSE"
+download_urls = [
+  "https://raw.githubusercontent.com/shuheilocale/japanese-personal-name-dataset/main/japanese_personal_name_dataset/dataset/first_name_woman_org.csv",
+]
+

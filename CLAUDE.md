@@ -28,13 +28,13 @@ bun run preview # preview production build
 
 - `src/App.tsx` — main app logic and passphrase generation
 - `src/components/TestSlider.tsx` — word count slider (WIP)
-- `src/assets/wordlist.csv` — curated word list (columns: kanji, kana)
-- `src/assets/wordlist_rules.md` — rules for which words are allowed in the wordlist
-- `src/assets/WordListSorter.py` — utility script for sorting the wordlist
+- `wordlists/30_curated/base/manual.csv` — primary manually curated base word list (columns: kanji, kana)
+- `wordlists/00_rules/` — rules for the default and additive wordlists
+- `wordlists/90_scripts/` — validation and build utilities for wordlists
 
 ## Wordlist Rules (summary)
 
-See `src/assets/wordlist_rules.md` for the full spec. Key points:
+See `wordlists/00_rules/global.md` for the full spec. Key points:
 - Words must be immediately understandable from hiragana/romaji alone
 - 2–7 hiragana characters (contracted sounds like ぁ count as 0.5)
 - Common everyday words only — no jargon, proper nouns, trademarks, or ambiguous homophones

@@ -14,7 +14,10 @@ import { useState, useEffect, useMemo } from "react";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import Papa from "papaparse";
-import wordlist_csv from "./assets/wordlist.csv?raw";
+import geographyJapanCsv from "../wordlists/30_curated/geography/estat-region-codes.csv?raw";
+import shuheilocaleFirstNameManCsv from "../wordlists/30_curated/names/shuheilocale-first-name-man-org.csv?raw";
+import shuheilocaleFirstNameWomanCsv from "../wordlists/30_curated/names/shuheilocale-first-name-woman-org.csv?raw";
+import shuheilocaleLastNameCsv from "../wordlists/30_curated/names/shuheilocale-last-name-org.csv?raw";
 import * as wanakana from "wanakana";
 import ReplayIcon from "@mui/icons-material/Replay";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
@@ -31,6 +34,9 @@ import RomajiStyleControl from "./components/RomajiStyleControl";
 import NStyleControl from "./components/NStyleControl";
 import QandA from "./components/QandA";
 import Footer from "./components/Footer";
+import AdditionalWordsetControl, {
+  type AdditionalWordsetOption,
+} from "./components/AdditionalWordsetControl";
 import {
   getToRomajiOptions,
   applyNStyle,
@@ -38,6 +44,96 @@ import {
   type NStyle,
 } from "./lib/romajiMappings";
 import { useLocalStorage } from "./hooks/useLocalStorage";
+
+type WordEntry = [string, string];
+type WordlistMap = Map<string, string>;
+
+type AdditionalWordsetDefinition = {
+  id: string;
+  title: string;
+  description: string;
+  note: string;
+  badge: string;
+  rawCsv: string;
+};
+
+const parseWordlistCsv = (rawCsv: string): WordlistMap => {
+  const rows = Papa.parse<string[]>(rawCsv.trim(), { skipEmptyLines: true }).data;
+  const wordlist = new Map<string, string>();
+
+  for (const row of rows) {
+    if (row.length < 2) {
+      continue;
+    }
+    const surface = row[0].trim();
+    const kana = row[1].trim();
+    if (!surface || !kana || wordlist.has(kana)) {
+      continue;
+    }
+    wordlist.set(kana, surface);
+  }
+
+  return wordlist;
+};
+
+const mergeWordlists = (wordlists: Iterable<WordlistMap>): WordlistMap => {
+  const merged = new Map<string, string>();
+
+  for (const wordlist of wordlists) {
+    for (const [kana, surface] of wordlist) {
+      if (!merged.has(kana)) {
+        merged.set(kana, surface);
+      }
+    }
+  }
+
+  return merged;
+};
+
+const wordlistEntries = (wordlist: WordlistMap): WordEntry[] =>
+  Array.from(wordlist, ([kana, surface]) => [surface, kana]);
+
+const ADDITIONAL_WORDSETS: AdditionalWordsetDefinition[] = [
+  {
+    id: "geography-japan",
+    title: "地名: 日本地理",
+    description:
+      "都道府県名や主要な地域名など、日本の地理でよく見かける語を追加します。",
+    note: "固有名詞セットです。一般語より推測しづらい語が混ざります。",
+    badge: "地名",
+    rawCsv: geographyJapanCsv,
+  },
+  {
+    id: "names-first-name-man",
+    title: "人名: 男性名",
+    description: "男性の上の名前を、読み由来のカタカナ表記で追加します。",
+    note: "人名セットです。漢字表記は使わず、読みベースで統一しています。",
+    badge: "人名",
+    rawCsv: shuheilocaleFirstNameManCsv,
+  },
+  {
+    id: "names-first-name-woman",
+    title: "人名: 女性名",
+    description: "女性の上の名前を、読み由来のカタカナ表記で追加します。",
+    note: "人名セットです。漢字表記は使わず、読みベースで統一しています。",
+    badge: "人名",
+    rawCsv: shuheilocaleFirstNameWomanCsv,
+  },
+  {
+    id: "names-last-name",
+    title: "人名: 苗字",
+    description: "日本の苗字を、読み由来のカタカナ表記で追加します。",
+    note: "人名セットです。漢字表記は使わず、読みベースで統一しています。",
+    badge: "人名",
+    rawCsv: shuheilocaleLastNameCsv,
+  },
+];
+
+const baseSubsetModules = import.meta.glob("../wordlists/30_curated/base/*.csv", {
+  query: "?raw",
+  import: "default",
+  eager: true,
+});
 
 function CopyButton({
   passPhrase,
@@ -96,7 +192,6 @@ const App = () => {
     document.documentElement.setAttribute("data-theme", themeMode);
   }, [themeMode]);
 
-  const [wordlist, setWordlist] = useState<string[][]>([]);
   const [words, setWords] = useState<{ kana: string[]; kanji: string[] }>({
     kana: ["にほんご", "ぱすわーど", "かわりに", "なるよ"],
     kanji: ["日本語", "パスワード", "代わりに", "なるよ"],
@@ -117,15 +212,76 @@ const App = () => {
     "end",
   );
   const [digitCount, setDigitCount] = useLocalStorage("digitCount", 4);
+  const [selectedWordsetIds, setSelectedWordsetIds] = useLocalStorage<string[]>(
+    "selectedWordsetIds",
+    [],
+  );
   const [generatedConfig, setGeneratedConfig] =
     useState<GeneratedConfig | null>(null);
+
+  const baseWordlist = useMemo(
+    () =>
+      mergeWordlists(
+        Object.values(baseSubsetModules).map((rawCsv) => parseWordlistCsv(String(rawCsv))),
+      ),
+    [],
+  );
+  const parsedAdditionalWordsets = useMemo(
+    () =>
+      Object.fromEntries(
+        ADDITIONAL_WORDSETS.map((wordset) => [
+          wordset.id,
+          parseWordlistCsv(wordset.rawCsv),
+        ]),
+      ) as Record<string, WordlistMap>,
+    [],
+  );
+  const availableWordsetIds = useMemo(
+    () => new Set(ADDITIONAL_WORDSETS.map((wordset) => wordset.id)),
+    [],
+  );
+  const normalizedSelectedWordsetIds = useMemo(
+    () => selectedWordsetIds.filter((id) => availableWordsetIds.has(id)),
+    [availableWordsetIds, selectedWordsetIds],
+  );
+  const activeWordsetKey = useMemo(
+    () => normalizedSelectedWordsetIds.slice().sort().join("|"),
+    [normalizedSelectedWordsetIds],
+  );
+  const activeWordlist = useMemo(
+    () =>
+      wordlistEntries(
+        mergeWordlists([
+          baseWordlist,
+          ...normalizedSelectedWordsetIds.flatMap((id) => {
+            const wordset = parsedAdditionalWordsets[id];
+            return wordset ? [wordset] : [];
+          }),
+        ]),
+      ),
+    [baseWordlist, normalizedSelectedWordsetIds, parsedAdditionalWordsets],
+  );
+  const additionalWordsetOptions = useMemo<AdditionalWordsetOption[]>(
+    () =>
+      ADDITIONAL_WORDSETS.map((wordset) => ({
+        id: wordset.id,
+        title: wordset.title,
+        description: wordset.description,
+        note: wordset.note,
+        badge: wordset.badge,
+        count: parsedAdditionalWordsets[wordset.id]?.size ?? 0,
+      })),
+    [parsedAdditionalWordsets],
+  );
 
   const needsRegeneration =
     generatedConfig === null ||
     generatedConfig.wordCount !== wordCount ||
     generatedConfig.numberEnabled !== numberEnabled ||
     generatedConfig.digitCount !== digitCount ||
-    generatedConfig.numberPosition !== numberPosition;
+    generatedConfig.numberPosition !== numberPosition ||
+    generatedConfig.wordsetKey !== activeWordsetKey ||
+    generatedConfig.wordlistSize !== activeWordlist.length;
 
   // Derived — updates instantly when separator, romajiStyle, or nStyle changes
   const romajiWords = words.kana.map((w) =>
@@ -135,24 +291,26 @@ const App = () => {
     ),
   );
   const passPhrase = romajiWords.join(separator);
-  const kanjiPassPhrase = words.kanji.join(separator);
-
-  useEffect(() => {
-    setWordlist(Papa.parse<string[]>(wordlist_csv).data);
-  }, []);
 
   const generatePassPhrase = () => {
+    if (activeWordlist.length === 0) {
+      return;
+    }
+
     setGeneratedConfig({
       wordCount,
       numberEnabled,
       digitCount,
       numberPosition,
+      wordlistSize: activeWordlist.length,
+      wordsetKey: activeWordsetKey,
     });
 
     const kanji: string[] = [];
     const kana: string[] = [];
     for (let i = 0; i < wordCount; i++) {
-      const entry = wordlist[Math.floor(Math.random() * wordlist.length)];
+      const entry =
+        activeWordlist[Math.floor(Math.random() * activeWordlist.length)];
       kanji.push(entry[0]);
       kana.push(entry[1]);
     }
@@ -250,7 +408,6 @@ const App = () => {
       </PassphraseContainer>
       <EntropyDisplay
         passPhrase={passPhrase}
-        wordlistSize={wordlist.length}
         separator={separator}
         generatedConfig={generatedConfig}
       />
@@ -332,6 +489,21 @@ const App = () => {
         >
           <RomajiStyleControl value={romajiStyle} onChange={setRomajiStyle} />
           <NStyleControl value={nStyle} onChange={setNStyle} />
+        </Box>
+        <Divider />
+        <Box sx={{ px: 3, py: 2 }}>
+          <AdditionalWordsetControl
+            options={additionalWordsetOptions}
+            selectedIds={normalizedSelectedWordsetIds}
+            onChange={setSelectedWordsetIds}
+          />
+          <Typography
+            variant="caption"
+            color="text.secondary"
+            sx={{ display: "block", mt: 1.5, textAlign: "center" }}
+          >
+            現在の有効語彙数: {activeWordlist.length}語
+          </Typography>
         </Box>
       </Paper>
       <QandA />

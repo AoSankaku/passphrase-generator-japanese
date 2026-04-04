@@ -45,7 +45,7 @@ export const getToRomajiOptions = (
   style: RomajiStyle,
   nStyle: NStyle,
 ): { customRomajiMapping?: Record<string, string> } => {
-  const base =
+  const base: Record<string, string> =
     style === "nihon"
       ? NIHON_MAPPING
       : style === "kunrei"
@@ -53,8 +53,9 @@ export const getToRomajiOptions = (
         : {};
   // force-nn: inject ん→nn into the mapping so consonant-context ん (e.g. ぼんご→bonngo)
   // is doubled. Vowel/y-context n' is caught by applyNStyle post-processing.
-  const nOverride = nStyle === "force-nn" ? { ん: "nn" } : {};
-  const combined = { ...base, ...nOverride };
+  const nOverride: Record<string, string> =
+    nStyle === "force-nn" ? { ん: "nn" } : {};
+  const combined: Record<string, string> = { ...base, ...nOverride };
   return Object.keys(combined).length > 0
     ? { customRomajiMapping: combined }
     : {};

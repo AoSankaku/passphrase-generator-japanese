@@ -1,0 +1,13 @@
+id = "shuheilocale-last-name-org"
+name = "shuheilocale 姓 完全版"
+group = "names"
+url = "https://github.com/shuheilocale/japanese-personal-name-dataset"
+license = "MIT"
+usage = "姓の追加ワードセット候補。漢字は無視し、読みからカタカナ表記へ正規化する"
+notes = "raw CSV は 1列目が漢字、2列目が推定人数、3列目がひらがな、4列目がローマ字"
+fetch = "auto"
+license_checked_at = "2026-04-04"
+license_source = "https://github.com/shuheilocale/japanese-personal-name-dataset/blob/main/LICENSE"
+download_urls = [
+  "https://raw.githubusercontent.com/shuheilocale/japanese-personal-name-dataset/main/japanese_personal_name_dataset/dataset/last_name_org.csv",
+]

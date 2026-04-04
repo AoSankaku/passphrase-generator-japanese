@@ -15,11 +15,12 @@ export type GeneratedConfig = {
   numberEnabled: boolean;
   digitCount: number;
   numberPosition: "start" | "end";
+  wordlistSize: number;
+  wordsetKey: string;
 };
 
 type EntropyDisplayProps = {
   passPhrase: string;
-  wordlistSize: number;
   separator: string;
   generatedConfig: GeneratedConfig | null;
 };
@@ -74,7 +75,6 @@ const LEVELS: {
 
 const EntropyDisplay: React.FC<EntropyDisplayProps> = ({
   passPhrase,
-  wordlistSize,
   separator,
   generatedConfig,
 }) => {
@@ -85,6 +85,7 @@ const EntropyDisplay: React.FC<EntropyDisplayProps> = ({
     wordCount = 0,
     numberEnabled = false,
     digitCount = 0,
+    wordlistSize = 0,
   } = generatedConfig ?? {};
 
   const charset = new Set([

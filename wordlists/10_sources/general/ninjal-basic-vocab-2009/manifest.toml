@@ -1,0 +1,14 @@
+id = "ninjal-basic-vocab-2009"
+name = "日本語教育基本語彙データベース"
+group = "general"
+url = "https://mmsrv.ninjal.ac.jp/brfvep/"
+license = "CC BY 4.0"
+usage = "基本語彙の母集団として使用"
+notes = "公開時は wordlists/00_rules/global.md と base.md の基準で再選別すること"
+fetch = "auto"
+license_checked_at = "2026-04-03"
+license_source = "https://mmsrv.ninjal.ac.jp/brfvep/"
+download_urls = [
+  "https://mmsrv.ninjal.ac.jp/brfvep/rokusyutaisyo.csv",
+  "https://mmsrv.ninjal.ac.jp/brfvep/kaisetsu.pdf",
+]
