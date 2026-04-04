@@ -1,0 +1,15 @@
+id = "ninjal-educational-vocab-1984"
+name = "教育基本語彙データベース"
+group = "general"
+url = "https://mmsrv.ninjal.ac.jp/bvjsl84/"
+license = "CC BY 4.0"
+usage = "基本語彙と生活語彙の補強"
+notes = "頻度だけで採用せず、意味の通りやすさを優先する"
+fetch = "auto"
+license_checked_at = "2026-04-03"
+license_source = "https://mmsrv.ninjal.ac.jp/bvjsl84/"
+download_urls = [
+  "https://mmsrv.ninjal.ac.jp/bvjsl84/2_nihongokyoiku01.xlsx",
+  "https://mmsrv.ninjal.ac.jp/bvjsl84/2_nihongokyoiku02.xlsx",
+  "https://mmsrv.ninjal.ac.jp/bvjsl84/3_bunrui01.xlsx",
+]

@@ -77,21 +77,27 @@ bun run preview  # preview production build
 
 ### 単語リストについて / About the wordlist
 
-`src/assets/wordlist.csv` にある単語リストは以下の基準で厳選されています：
+`wordlists/30_curated/base/manual.csv` を含む基本語彙は以下の基準で厳選されています：
 
-The wordlist at `src/assets/wordlist.csv` is curated to include only words that:
+The default base wordlists, including `wordlists/30_curated/base/manual.csv`, are curated to include only words that:
 
 - ひらがな・ローマ字だけで即座に意味がわかる / Are immediately understandable from hiragana/romaji alone
 - ひらがな2〜7文字（拗音は0.5文字換算）/ Are 2–7 hiragana characters (contracted sounds count as 0.5)
 - 一般的な日常語のみ（専門用語・固有名詞・商標・不適切語を除く）/ Are common everyday words (no jargon, proper nouns, trademarks, or offensive terms)
 
-編集時には重複読みが一時的に入ることがありますが、公開用データは `src/assets/WordListSorter.py` により読み仮名重複を除去します。これは使い勝手とエントロピー計算の正確性を保つためです。
+追加ワードセットを含む語彙は `wordlists/` 配下で管理され、ビルド時に読み仮名重複を除去します。これは使い勝手とエントロピー計算の正確性を保つためです。
 
-While duplicate readings may temporarily appear during editing, the published wordlist is deduplicated by kana via `src/assets/WordListSorter.py` to preserve usability and accurate entropy calculation.
+Wordlists, including additive sets, are managed under `wordlists/` and deduplicated by kana at build time to preserve usability and accurate entropy calculation.
 
-詳細は [`src/assets/wordlist_rules.md`](src/assets/wordlist_rules.md) を参照してください。
+詳細は [`wordlists/00_rules/global.md`](wordlists/00_rules/global.md) を参照してください。
 
-See [`src/assets/wordlist_rules.md`](src/assets/wordlist_rules.md) for the full specification.
+See [`wordlists/00_rules/global.md`](wordlists/00_rules/global.md) for the full specification.
+
+追加ワードセットの収集、レビュー、ビルド基盤は [`wordlists/README.md`](wordlists/README.md) に分離しました。地名や専門用語は将来的に opt-in のサブセットとして管理する前提です。
+
+The collection, review, and build workspace for future additive word sets now lives in [`wordlists/README.md`](wordlists/README.md). Geography and domain-specific terms are intended to remain opt-in subsets rather than part of the default list.
+
+`10_sources` の出典定義から原データを取得する補助スクリプトとして `bun run wordlists:fetch` を用意しています。現時点で自動取得するのは NINJAL 2件と e-Stat 標準地域コードだけで、国土地理院地名情報と SudachiDict はライセンス・配布形態の追加確認が必要なため手動管理です。
 
 ---
 

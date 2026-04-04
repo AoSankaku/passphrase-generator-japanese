@@ -1,0 +1,8 @@
+base_wordlist = "wordlists/30_curated/base/manual.csv"
+base_subsets_dir = "wordlists/30_curated/base"
+curated_root = "wordlists/30_curated"
+build_root = "wordlists/40_build"
+
+[sets]
+geography = "wordlists/30_curated/geography"
+domain = "wordlists/30_curated/domain"

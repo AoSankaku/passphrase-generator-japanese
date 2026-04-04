@@ -11,6 +11,9 @@ node_modules
 dist
 dist-ssr
 *.local
+wordlists/40_build/active/*.csv
+wordlists/10_sources/**/raw/
+__pycache__/
 
 # Editor directories and files
 .vscode/*
