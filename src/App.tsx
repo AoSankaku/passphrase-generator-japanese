@@ -57,6 +57,10 @@ type AdditionalWordsetDefinition = {
   rawCsv: string;
 };
 
+const BASE_WORDSET_ID = "general";
+const ENABLED_WORDSET_IDS_STORAGE_KEY = "enabledWordsetIds";
+const LEGACY_SELECTED_WORDSET_IDS_STORAGE_KEY = "selectedWordsetIds";
+
 const parseWordlistCsv = (rawCsv: string): WordlistMap => {
   const rows = Papa.parse<string[]>(rawCsv.trim(), { skipEmptyLines: true }).data;
   const wordlist = new Map<string, string>();
@@ -106,7 +110,7 @@ const ADDITIONAL_WORDSETS: AdditionalWordsetDefinition[] = [
   {
     id: "names-first-name-man",
     title: "人名: 男性名",
-    description: "男性の上の名前を、読み由来のカタカナ表記で追加します。",
+    description: "男性の名前を、読み由来のカタカナ表記で追加します。",
     note: "人名セットです。漢字表記は使わず、読みベースで統一しています。",
     badge: "人名",
     rawCsv: shuheilocaleFirstNameManCsv,
@@ -114,7 +118,7 @@ const ADDITIONAL_WORDSETS: AdditionalWordsetDefinition[] = [
   {
     id: "names-first-name-woman",
     title: "人名: 女性名",
-    description: "女性の上の名前を、読み由来のカタカナ表記で追加します。",
+    description: "女性の名前を、読み由来のカタカナ表記で追加します。",
     note: "人名セットです。漢字表記は使わず、読みベースで統一しています。",
     badge: "人名",
     rawCsv: shuheilocaleFirstNameWomanCsv,
@@ -212,10 +216,44 @@ const App = () => {
     "end",
   );
   const [digitCount, setDigitCount] = useLocalStorage("digitCount", 4);
-  const [selectedWordsetIds, setSelectedWordsetIds] = useLocalStorage<string[]>(
-    "selectedWordsetIds",
-    [],
-  );
+  const [selectedWordsetIds, setSelectedWordsetIds] = useState<string[]>(() => {
+    const storedEnabledWordsetIds = localStorage.getItem(
+      ENABLED_WORDSET_IDS_STORAGE_KEY,
+    );
+
+    if (storedEnabledWordsetIds !== null) {
+      try {
+        const parsed = JSON.parse(storedEnabledWordsetIds);
+        if (Array.isArray(parsed)) {
+          return parsed.filter((id): id is string => typeof id === "string");
+        }
+      } catch (error) {
+        console.error("ワードセット設定の読み込みに失敗しました:", error);
+      }
+
+      return [BASE_WORDSET_ID];
+    }
+
+    const legacySelectedWordsetIds = localStorage.getItem(
+      LEGACY_SELECTED_WORDSET_IDS_STORAGE_KEY,
+    );
+
+    if (legacySelectedWordsetIds !== null) {
+      try {
+        const parsed = JSON.parse(legacySelectedWordsetIds);
+        if (Array.isArray(parsed)) {
+          return [
+            BASE_WORDSET_ID,
+            ...parsed.filter((id): id is string => typeof id === "string"),
+          ];
+        }
+      } catch (error) {
+        console.error("旧ワードセット設定の移行に失敗しました:", error);
+      }
+    }
+
+    return [BASE_WORDSET_ID];
+  });
   const [generatedConfig, setGeneratedConfig] =
     useState<GeneratedConfig | null>(null);
 
@@ -237,7 +275,7 @@ const App = () => {
     [],
   );
   const availableWordsetIds = useMemo(
-    () => new Set(ADDITIONAL_WORDSETS.map((wordset) => wordset.id)),
+    () => new Set([BASE_WORDSET_ID, ...ADDITIONAL_WORDSETS.map((wordset) => wordset.id)]),
     [],
   );
   const normalizedSelectedWordsetIds = useMemo(
@@ -251,19 +289,31 @@ const App = () => {
   const activeWordlist = useMemo(
     () =>
       wordlistEntries(
-        mergeWordlists([
-          baseWordlist,
-          ...normalizedSelectedWordsetIds.flatMap((id) => {
+        mergeWordlists(
+          normalizedSelectedWordsetIds.flatMap((id) => {
+            if (id === BASE_WORDSET_ID) {
+              return [baseWordlist];
+            }
+
             const wordset = parsedAdditionalWordsets[id];
             return wordset ? [wordset] : [];
           }),
-        ]),
+        ),
       ),
     [baseWordlist, normalizedSelectedWordsetIds, parsedAdditionalWordsets],
   );
   const additionalWordsetOptions = useMemo<AdditionalWordsetOption[]>(
-    () =>
-      ADDITIONAL_WORDSETS.map((wordset) => ({
+    () => [
+      {
+        id: BASE_WORDSET_ID,
+        title: "一般単語",
+        description:
+          "日常的な日本語の一般語彙です。",
+        note: "チェックを外すことで、他のワードセットに絞って生成できます。",
+        badge: "基本",
+        count: baseWordlist.size,
+      },
+      ...ADDITIONAL_WORDSETS.map((wordset) => ({
         id: wordset.id,
         title: wordset.title,
         description: wordset.description,
@@ -271,8 +321,16 @@ const App = () => {
         badge: wordset.badge,
         count: parsedAdditionalWordsets[wordset.id]?.size ?? 0,
       })),
-    [parsedAdditionalWordsets],
+    ],
+    [baseWordlist.size, parsedAdditionalWordsets],
   );
+
+  useEffect(() => {
+    localStorage.setItem(
+      ENABLED_WORDSET_IDS_STORAGE_KEY,
+      JSON.stringify(normalizedSelectedWordsetIds),
+    );
+  }, [normalizedSelectedWordsetIds]);
 
   const needsRegeneration =
     generatedConfig === null ||

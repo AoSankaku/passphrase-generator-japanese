@@ -27,6 +27,9 @@ const AdditionalWordsetControl = ({
   const handleToggle = (id: string) => {
     const isSelected = selectedIds.includes(id);
     if (isSelected) {
+      if (selectedIds.length === 1) {
+        return;
+      }
       onChange(selectedIds.filter((selectedId) => selectedId !== id));
       return;
     }
@@ -36,9 +39,9 @@ const AdditionalWordsetControl = ({
   return (
     <Stack spacing={1.5} sx={{ width: "100%" }}>
       <Stack spacing={0.75}>
-        <Typography variant="subtitle2">追加ワードセット</Typography>
+        <Typography variant="subtitle2">ワードセット</Typography>
         <Typography variant="body2" color="text.secondary">
-          地名や人名のセットは便利ですが、デフォルト語彙より意味推測しづらい語を含む場合があります。また、種類よりも単語数を増やすほうがセキュリティが向上します。
+          一般単語は基本の語彙セットです。地名や人名のセットは便利ですが、一般語彙より意味推測しづらい語を含む場合があります。また、種類よりも単語数を増やすほうがセキュリティが向上します。
         </Typography>
       </Stack>
       <Stack spacing={1}>
@@ -70,6 +73,9 @@ const AdditionalWordsetControl = ({
                 control={
                   <Checkbox
                     checked={selectedIds.includes(option.id)}
+                    disabled={
+                      selectedIds.length === 1 && selectedIds.includes(option.id)
+                    }
                     onChange={() => handleToggle(option.id)}
                   />
                 }
