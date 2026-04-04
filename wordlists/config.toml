@@ -6,3 +6,4 @@ build_root = "wordlists/40_build"
 [sets]
 geography = "wordlists/30_curated/geography"
 domain = "wordlists/30_curated/domain"
+names = "wordlists/30_curated/names"

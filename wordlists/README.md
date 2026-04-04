@@ -28,6 +28,7 @@ wordlists/
 - `base.md`: デフォルト同梱の基本語彙向けの基準
 - `geography.md`: 地名セット向けの追加ルール
 - `domain.md`: 専門語セット向けの追加ルール
+- `names.md`: 人名セット向けの追加ルール
 
 ### `10_sources/`
 
@@ -52,6 +53,7 @@ wordlists/
 - `base/*.csv`: 基本語彙のサブカテゴリ
 - `geography/*.csv`: 地域別の地名セット
 - `domain/*.csv`: 分野別の専門語セット
+- `names/*.csv`: 人名の追加セット
 
 ### `40_build/`
 
@@ -96,6 +98,7 @@ surface,kana,source_id,reason,notes
 | SudachiDict `core` / `small` | 読み仮名・基本形の補助 | Apache 2.0 |
 | 国土地理院 地名情報 | 地名候補の収集 | 国土地理院コンテンツ利用規約 |
 | e-Stat 標準地域コード | 地域別セットの整理、読み補助 | 政府標準利用規約系の公開データ |
+| shuheilocale Japanese Personal Name Dataset | 名・姓の人名候補収集 | MIT |
 
 BCCWJ のような頻度情報は候補の順位付けには有用だが、用途制限や再配布条件を都度確認すること。
 
@@ -138,7 +141,7 @@ NINJAL 2009 では passphrase 向けに名詞系だけを候補化し、注記�
 - 市区町村、村、郡など個別地名は `promote_ready` に回す
 - 県名、地方名、全国市部のような広域ラベルや著名ラベルは `needs_review.generated.csv` に残す
 
-- 自動取得対象: NINJAL 2件、e-Stat 標準地域コード
+- 自動取得対象: NINJAL 2件、e-Stat 標準地域コード、shuheilocale 人名データ
 - 手動管理: 国土地理院 地名情報、SudachiDict core
 
 国土地理院 地名情報は公式ページ上で安定した機械取得 URL の確認が取れていない。SudachiDict core は Apache 2.0 だが、辞書同梱物の扱いを追加確認したうえで限定利用したいため、現時点ではどちらも手動取得のままにしている。

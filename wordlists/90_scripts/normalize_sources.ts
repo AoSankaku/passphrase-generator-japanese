@@ -4,7 +4,9 @@ import { dirname, join } from "node:path";
 import * as wanakana from "wanakana";
 
 import {
+  containsDisallowedWiWe,
   dedupeByKana,
+  findDisallowedSurfaceTerm,
   getProjectPath,
   projectRoot,
   type WordRow,
@@ -162,6 +164,12 @@ function toCandidateRow(headword: string, orthography?: string): WordRow | null 
 
   const surface = derivedSurface ?? wanakana.toKatakana(kana);
   if (!surface) {
+    return null;
+  }
+  if (containsDisallowedWiWe(surface) || containsDisallowedWiWe(kana)) {
+    return null;
+  }
+  if (findDisallowedSurfaceTerm(surface)) {
     return null;
   }
 
@@ -339,7 +347,13 @@ async function normalizeEstatRegionCodes(sourceDir: string): Promise<WordRow[]> 
       .map((row) => {
         const surface = (row[1] ?? "").trim();
         const kana = toHiraganaPreservingLongMark((row[2] ?? "").trim());
-        if (!surface || !/^[ぁ-ゖー]+$/.test(kana)) {
+        if (
+          !surface ||
+          !/^[ぁ-ゖー]+$/.test(kana) ||
+          containsDisallowedWiWe(surface) ||
+          containsDisallowedWiWe(kana) ||
+          findDisallowedSurfaceTerm(surface)
+        ) {
           return null;
         }
         return [surface, kana] as WordRow;
@@ -370,10 +384,56 @@ async function normalizeNinjalEducational1984(sourceDir: string): Promise<WordRo
   return dedupeByKana(rows);
 }
 
+function katakanaRowFromReading(reading: string): WordRow | null {
+  const kana = toHiraganaPreservingLongMark(reading.trim());
+  if (!kana || !/^[ぁ-ゖー]+$/.test(kana) || !/[ぁ-ゖ]/.test(kana)) {
+    return null;
+  }
+  if (containsDisallowedWiWe(kana)) {
+    return null;
+  }
+
+  const surface = wanakana.toKatakana(kana);
+  if (containsDisallowedWiWe(surface)) {
+    return null;
+  }
+
+  return [surface, kana];
+}
+
+async function normalizeShuheilocaleFirstName(sourceDir: string, fileName: string): Promise<WordRow[]> {
+  const rows = await loadUtf8Csv(join(sourceDir, "raw", fileName));
+  return dedupeByKana(
+    rows
+      .map((row) => katakanaRowFromReading(row[0] ?? ""))
+      .filter((row): row is WordRow => row !== null),
+  );
+}
+
+async function normalizeShuheilocaleFirstNameMan(sourceDir: string): Promise<WordRow[]> {
+  return normalizeShuheilocaleFirstName(sourceDir, "first_name_man_org.csv");
+}
+
+async function normalizeShuheilocaleFirstNameWoman(sourceDir: string): Promise<WordRow[]> {
+  return normalizeShuheilocaleFirstName(sourceDir, "first_name_woman_org.csv");
+}
+
+async function normalizeShuheilocaleLastName(sourceDir: string): Promise<WordRow[]> {
+  const rows = await loadUtf8Csv(join(sourceDir, "raw", "last_name_org.csv"));
+  return dedupeByKana(
+    rows
+      .map((row) => katakanaRowFromReading(row[2] ?? ""))
+      .filter((row): row is WordRow => row !== null),
+  );
+}
+
 const sourceHandlers: Record<string, SourceHandler> = {
   "ninjal-basic-vocab-2009": normalizeNinjalBasic2009,
   "ninjal-educational-vocab-1984": normalizeNinjalEducational1984,
   "estat-region-codes": normalizeEstatRegionCodes,
+  "shuheilocale-first-name-man-org": normalizeShuheilocaleFirstNameMan,
+  "shuheilocale-first-name-woman-org": normalizeShuheilocaleFirstNameWoman,
+  "shuheilocale-last-name-org": normalizeShuheilocaleLastName,
 };
 
 async function main() {

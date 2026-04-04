@@ -2,10 +2,13 @@ import { mkdir, readdir, readFile, rm } from "node:fs/promises";
 import { dirname, join } from "node:path";
 
 import {
+  containsDisallowedWiWe,
+  findDisallowedSurfaceTerm,
   getProjectPath,
   isGeneralCategory,
   isGeographyCategory,
   isHiragana,
+  isNamesCategory,
   kanaUnits,
   listCsvFiles,
   readWordRows,
@@ -46,6 +49,7 @@ type TriageArgs = {
 
 const asciiPattern = /[A-Za-z0-9]/;
 const symbolPattern = /[!-/:-@[-`{-~]/;
+const fullwidthAlnumPattern = /[Ａ-Ｚａ-ｚ０-９]/;
 
 function parseArgs(): TriageArgs {
   const args = Bun.argv.slice(2);
@@ -168,6 +172,25 @@ function rejectReason(row: WordRow): string | null {
   if (symbolPattern.test(surface)) {
     return "symbol_detected";
   }
+  if (containsDisallowedWiWe(surface) || containsDisallowedWiWe(kana)) {
+    return "disallowed_wi_we";
+  }
+  const disallowedSurfaceTerm = findDisallowedSurfaceTerm(surface);
+  if (disallowedSurfaceTerm) {
+    return `disallowed_surface:${disallowedSurfaceTerm}`;
+  }
+  return null;
+}
+
+function rejectReasonForNames(row: WordRow): string | null {
+  const [surface] = row;
+  if (fullwidthAlnumPattern.test(surface)) {
+    return "names_fullwidth_alnum_surface";
+  }
+  return null;
+}
+
+function reviewReasonForNames(_row: WordRow, _sourceId: string): string | null {
   return null;
 }
 
@@ -228,10 +251,26 @@ async function main() {
         continue;
       }
 
+      if (isNamesCategory(manifest?.group)) {
+        const namesRejection = rejectReasonForNames(row);
+        if (namesRejection) {
+          generatedRejectRows.push({
+            surface,
+            kana,
+            sourceId,
+            reason: namesRejection,
+            notes: "",
+          });
+          continue;
+        }
+      }
+
       const previousSource = seenKana.get(kana);
       if (
         previousSource &&
         previousSource.sourceId !== sourceId &&
+        !isNamesCategory(previousSource.group) &&
+        !isNamesCategory(manifest?.group) &&
         !isGeographyCategory(previousSource.group) &&
         !isGeographyCategory(manifest?.group)
       ) {
@@ -270,7 +309,8 @@ async function main() {
       if (
         manifest &&
         !isGeneralCategory(manifest.group) &&
-        !isGeographyCategory(manifest.group)
+        !isGeographyCategory(manifest.group) &&
+        !isNamesCategory(manifest.group)
       ) {
         generatedReviewRows.push({
           surface,
@@ -280,6 +320,20 @@ async function main() {
           notes: `source group is ${manifest.group}`,
         });
         continue;
+      }
+
+      if (isNamesCategory(manifest?.group)) {
+        const namesReviewReason = reviewReasonForNames(row, sourceId);
+        if (namesReviewReason) {
+          generatedReviewRows.push({
+            surface,
+            kana,
+            sourceId,
+            reason: namesReviewReason,
+            notes: "",
+          });
+          continue;
+        }
       }
 
       const reviewReason = reviewReasonFromContent(row, config);

@@ -15,7 +15,9 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import Papa from "papaparse";
 import geographyJapanCsv from "../wordlists/30_curated/geography/estat-region-codes.csv?raw";
-import schoolScienceCsv from "../wordlists/30_curated/domain/school-science.csv?raw";
+import shuheilocaleFirstNameManCsv from "../wordlists/30_curated/names/shuheilocale-first-name-man-org.csv?raw";
+import shuheilocaleFirstNameWomanCsv from "../wordlists/30_curated/names/shuheilocale-first-name-woman-org.csv?raw";
+import shuheilocaleLastNameCsv from "../wordlists/30_curated/names/shuheilocale-last-name-org.csv?raw";
 import * as wanakana from "wanakana";
 import ReplayIcon from "@mui/icons-material/Replay";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
@@ -88,12 +90,28 @@ const ADDITIONAL_WORDSETS: AdditionalWordsetDefinition[] = [
     rawCsv: geographyJapanCsv,
   },
   {
-    id: "domain-school-science",
-    title: "分野: 理科",
-    description: "電流、磁石、光合成など、学校でよく触れる理科語彙を追加します。",
-    note: "専門寄りの語を含みます。デフォルト語彙より難しめです。",
-    badge: "分野語",
-    rawCsv: schoolScienceCsv,
+    id: "names-first-name-man",
+    title: "人名: 男性名",
+    description: "男性の上の名前を、読み由来のカタカナ表記で追加します。",
+    note: "人名セットです。漢字表記は使わず、読みベースで統一しています。",
+    badge: "人名",
+    rawCsv: shuheilocaleFirstNameManCsv,
+  },
+  {
+    id: "names-first-name-woman",
+    title: "人名: 女性名",
+    description: "女性の上の名前を、読み由来のカタカナ表記で追加します。",
+    note: "人名セットです。漢字表記は使わず、読みベースで統一しています。",
+    badge: "人名",
+    rawCsv: shuheilocaleFirstNameWomanCsv,
+  },
+  {
+    id: "names-last-name",
+    title: "人名: 苗字",
+    description: "日本の苗字を、読み由来のカタカナ表記で追加します。",
+    note: "人名セットです。漢字表記は使わず、読みベースで統一しています。",
+    badge: "人名",
+    rawCsv: shuheilocaleLastNameCsv,
   },
 ];
 

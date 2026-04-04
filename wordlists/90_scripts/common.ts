@@ -7,11 +7,14 @@ export type CanonicalCategory =
   | "general"
   | "geography"
   | "domain"
+  | "names"
   | "morphology";
 
 export const projectRoot = resolve(import.meta.dir, "..", "..");
 const smallKana = new Set("ゃゅょぁぃぅぇぉャュョァィゥェォ");
 const hiraganaPattern = /^[ぁ-ゖー]+$/;
+const disallowedWiWePattern = /(?:ウィ|ウェ|うぃ|うぇ)/;
+const disallowedSurfaceTerms = ["糞"] as const;
 const categoryAliases = new Map<string, CanonicalCategory>([
   ["base", "base"],
   ["basic", "base"],
@@ -25,6 +28,9 @@ const categoryAliases = new Map<string, CanonicalCategory>([
   ["専門語", "domain"],
   ["分野", "domain"],
   ["domain", "domain"],
+  ["人名", "names"],
+  ["名前", "names"],
+  ["names", "names"],
   ["形態素", "morphology"],
   ["morphology", "morphology"],
 ]);
@@ -104,6 +110,14 @@ export function isHiragana(text: string): boolean {
   return hiraganaPattern.test(text);
 }
 
+export function containsDisallowedWiWe(text: string): boolean {
+  return disallowedWiWePattern.test(text);
+}
+
+export function findDisallowedSurfaceTerm(text: string): string | null {
+  return disallowedSurfaceTerms.find((term) => text.includes(term)) ?? null;
+}
+
 export function normalizeCategory(
   value: string | null | undefined,
 ): CanonicalCategory | undefined {
@@ -119,6 +133,10 @@ export function isGeographyCategory(value: string | null | undefined): boolean {
 
 export function isGeneralCategory(value: string | null | undefined): boolean {
   return normalizeCategory(value) === "general";
+}
+
+export function isNamesCategory(value: string | null | undefined): boolean {
+  return normalizeCategory(value) === "names";
 }
 
 export function getSetDirectories(config: Record<string, unknown>): Array<[string, string]> {

@@ -1,6 +1,14 @@
 import { readFile } from "node:fs/promises";
 
-import { compareWordRows, isHiragana, kanaUnits, sortWordRows, type WordRow } from "./common";
+import {
+  compareWordRows,
+  containsDisallowedWiWe,
+  findDisallowedSurfaceTerm,
+  isHiragana,
+  kanaUnits,
+  sortWordRows,
+  type WordRow,
+} from "./common";
 
 const asciiPattern = /[A-Za-z0-9]/;
 const symbolPattern = /[!-/:-@[-`{-~]/;
@@ -56,6 +64,13 @@ function getRowReasons(row: WordRow): string[] {
   }
   if (symbolPattern.test(surface)) {
     reasons.push("symbol_detected");
+  }
+  if (containsDisallowedWiWe(surface) || containsDisallowedWiWe(kana)) {
+    reasons.push("disallowed_wi_we");
+  }
+  const disallowedSurfaceTerm = findDisallowedSurfaceTerm(surface);
+  if (disallowedSurfaceTerm) {
+    reasons.push(`disallowed_surface:${disallowedSurfaceTerm}`);
   }
 
   return reasons;

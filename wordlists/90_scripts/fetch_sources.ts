@@ -170,6 +170,9 @@ const sourceHandlers: Record<string, SourceHandler> = {
   "ninjal-basic-vocab-2009": fetchStaticDownloads,
   "ninjal-educational-vocab-1984": fetchStaticDownloads,
   "estat-region-codes": fetchEstatRegionCodes,
+  "shuheilocale-first-name-man-org": fetchStaticDownloads,
+  "shuheilocale-first-name-woman-org": fetchStaticDownloads,
+  "shuheilocale-last-name-org": fetchStaticDownloads,
 };
 
 async function main() {

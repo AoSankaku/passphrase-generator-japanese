@@ -38,7 +38,7 @@ const AdditionalWordsetControl = ({
       <Stack spacing={0.75}>
         <Typography variant="subtitle2">追加ワードセット</Typography>
         <Typography variant="body2" color="text.secondary">
-          地名や分野語は便利ですが、デフォルト語彙より意味推測しづらい語を含む場合があります。
+          地名や人名のセットは便利ですが、デフォルト語彙より意味推測しづらい語を含む場合があります。また、種類よりも単語数を増やすほうがセキュリティが向上します。
         </Typography>
       </Stack>
       <Stack spacing={1}>

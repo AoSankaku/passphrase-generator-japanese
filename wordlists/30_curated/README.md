@@ -5,3 +5,4 @@
 - `base/manual.csv`: デフォルト同梱する基本語彙の手動管理分
 - `geography/*.csv`: 地域別地名セット
 - `domain/*.csv`: 分野別専門語セット
+- `names/*.csv`: 人名セット
