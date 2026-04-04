@@ -102,7 +102,7 @@ const ADDITIONAL_WORDSETS: AdditionalWordsetDefinition[] = [
     id: "geography-japan",
     title: "地名: 日本地理",
     description:
-      "都道府県名や主要な地域名など、日本の地理でよく見かける語を追加します。",
+      "日本の市区町村に実在する地名を追加します。",
     note: "固有名詞セットです。一般語より推測しづらい語が混ざります。",
     badge: "地名",
     rawCsv: geographyJapanCsv,
