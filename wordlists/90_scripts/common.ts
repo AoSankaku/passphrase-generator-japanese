@@ -84,6 +84,14 @@ export function dedupeByKana(rows: WordRow[]): WordRow[] {
   return deduped;
 }
 
+export function compareWordRows([surfaceA, kanaA]: WordRow, [surfaceB, kanaB]: WordRow): number {
+  return kanaA.localeCompare(kanaB, "ja") || surfaceA.localeCompare(surfaceB, "ja");
+}
+
+export function sortWordRows(rows: WordRow[]): WordRow[] {
+  return [...rows].sort(compareWordRows);
+}
+
 export function kanaUnits(text: string): number {
   let units = 0;
   for (const char of text) {
