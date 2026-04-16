@@ -1,7 +1,7 @@
 # 🇯🇵 日本語パスフレーズジェネレーター
 ### Japanese Passphrase Generator
 
-**[→ 今すぐ使う / Try it now](https://passphrase.aosankaku.net)**
+**[→ 今すぐ使う / Try it now](https://pasufure-zu.aosankaku.net)**
 
 日本語の単語を組み合わせて、覚えやすくて強固なパスフレーズを生成するツールです。
 
