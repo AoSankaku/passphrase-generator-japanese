@@ -44,6 +44,11 @@ import {
   type NStyle,
 } from "./lib/romajiMappings";
 import { useLocalStorage } from "./hooks/useLocalStorage";
+import {
+  calculateMaleNameBirthdayEntropy,
+  createBirthday,
+  pickRandomItem,
+} from "./lib/passwordExample";
 
 type WordEntry = [string, string];
 type WordlistMap = Map<string, string>;
@@ -274,6 +279,21 @@ const App = () => {
       ) as Record<string, WordlistMap>,
     [],
   );
+  const maleNameBirthdayExample = useMemo(() => {
+    const maleNames = Array.from(
+      parsedAdditionalWordsets["names-first-name-man"].keys(),
+    );
+    const name = wanakana
+      .toRomaji(pickRandomItem(maleNames))
+      .toLowerCase()
+      .replace(/[^a-z]/g, "");
+    const password = `${name}${createBirthday()}`;
+
+    return {
+      password,
+      entropy: calculateMaleNameBirthdayEntropy(maleNames.length),
+    };
+  }, [parsedAdditionalWordsets]);
   const availableWordsetIds = useMemo(
     () => new Set([BASE_WORDSET_ID, ...ADDITIONAL_WORDSETS.map((wordset) => wordset.id)]),
     [],
@@ -468,6 +488,7 @@ const App = () => {
         passPhrase={passPhrase}
         separator={separator}
         generatedConfig={generatedConfig}
+        maleNameBirthdayExample={maleNameBirthdayExample}
       />
       <Box sx={{ display: "flex", gap: 2, justifyContent: "center" }}>
         <GenerateButton
